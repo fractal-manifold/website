@@ -225,6 +225,7 @@ import Footer from '../components/Footer.astro';
     margin-bottom: 1.5rem;
     letter-spacing: 2px;
     white-space: nowrap;
+    line-height: 1.2;
   }
 
   .gradient-text {
@@ -408,6 +409,34 @@ import Footer from '../components/Footer.astro';
   }
 
   @media (max-width: 768px) {
+    main {
+      padding-top: 70px;
+    }
+
+    .hero {
+      min-height: 85vh;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      letter-spacing: 1px;
+    }
+
+    .orb-1 {
+      width: 350px;
+      height: 350px;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+    }
+
+    .logo-watermark {
+      width: 500px;
+      height: 500px;
+    }
+
     .section {
       padding: 4rem 0;
     }
@@ -424,6 +453,47 @@ import Footer from '../components/Footer.astro';
 
     .features {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    main {
+      padding-top: 60px;
+    }
+
+    .hero {
+      min-height: 80vh;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 12vw, 3rem);
+      white-space: normal;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      margin-bottom: 2rem;
+    }
+
+    .orb-1 {
+      width: 250px;
+      height: 250px;
+    }
+
+    .orb-2 {
+      width: 300px;
+      height: 300px;
+    }
+
+    .logo-watermark {
+      width: 350px;
+      height: 350px;
+    }
+
+    .section {
+      padding: 3rem 0;
     }
   }
 </style>
