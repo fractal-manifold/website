@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rg:*)",
+      "Bash(grep:*)",
+      "Bash(uv:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(touch:*)",
+      "Bash(sed:*)",
+      "Bash(cat:*)",
+      "Bash(awk:*)",
+      "Bash(tee:*)",
+      "Bash(head:*)",
+      "Bash(xdg-open:*)",
+      "Bash(tree:*)",
+      "Bash(xargs:*)",
+      "WebSearch"
+    ],
+    "deny": [
+    ]
+  },
+  "enabledMcpjsonServers": [
+  ]
+}

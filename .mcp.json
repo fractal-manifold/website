@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "jetbrains": {
+      "command": "npx",
+      "args": [
+        "@jorgemf/mcp-filter-tools@latest",
+        "--transport", "sse",
+        "--http-url", "http://localhost:64342/sse",
+        "--allow-tool", "get_file_problems",
+        "--allow-tool", "get_symbol_info",
+        "--allow-tool", "get_run_configurations",
+        "--allow-tool", "execute_terminal_command",
+        "--allow-tool", "execute_run_configuration",
+        "--allow-tool", "rename_refactoring"
+      ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "@jorgemf/mcp-filter-tools@latest",
+        "--transport", "stdio",
+        "--stdio-command", "npx",
+        "--stdio-arg", "-y",
+        "--stdio-arg", "chrome-devtools-mcp@latest",
+        "--allow-tool", "navigate_page",
+        "--allow-tool", "take_snapshot",
+        "--allow-tool", "take_screenshot",
+        "--allow-tool", "evaluate_script",
+        "--allow-tool", "list_console_messages",
+        "--allow-tool", "get_console_message",
+        "--allow-tool", "list_network_requests",
+        "--allow-tool", "get_network_request",
+        "--allow-tool", "click",
+        "--allow-tool", "wait_for",
+        "--allow-tool", "fill",
+        "--allow-tool", "handle_dialog"
+      ]
+    }
+  }
+}
