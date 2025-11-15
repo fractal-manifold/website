@@ -1,0 +1,208 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="404 - Page Not Found | Fractal Manifold">
+  <Header />
+
+  <main>
+    <section class="error-page">
+      <div class="error-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="logo-watermark"></div>
+      </div>
+      <div class="container">
+        <div class="error-content">
+          <div class="error-code">404</div>
+          <h1 class="error-title">
+            <span class="gradient-text">Page Not Found</span>
+          </h1>
+          <p class="error-message">
+            The page you're looking for doesn't exist or has been moved.
+            Let's get you back on track.
+          </p>
+          <div class="error-actions">
+            <a href="/" class="btn btn-primary">Back to Home</a>
+            <a href="#contact" class="btn btn-secondary">Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    padding-top: 80px;
+  }
+
+  .error-page {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .error-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.3;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    top: -10%;
+    right: 10%;
+    animation-delay: 0s;
+  }
+
+  .orb-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--color-purple), transparent);
+    bottom: -20%;
+    left: -10%;
+    animation-delay: 5s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  .logo-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background-image: url('/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.05;
+    pointer-events: none;
+    filter: grayscale(100%);
+  }
+
+  .error-content {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .error-code {
+    font-family: var(--font-display);
+    font-size: clamp(8rem, 20vw, 16rem);
+    line-height: 1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 400;
+    letter-spacing: 2px;
+  }
+
+  .error-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+  }
+
+  .error-message {
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    color: var(--color-text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .error-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: transparent;
+    color: var(--color-gold-light);
+    border: 2px solid var(--color-gold);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+    color: var(--color-bg);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-purple-light);
+    border: 2px solid var(--color-purple);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-purple);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  @media (max-width: 768px) {
+    .error-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+</style>

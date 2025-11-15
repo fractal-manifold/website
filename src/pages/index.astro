@@ -13,6 +13,7 @@ import Footer from '../components/Footer.astro';
       <div class="hero-background">
         <div class="gradient-orb orb-1"></div>
         <div class="gradient-orb orb-2"></div>
+        <div class="logo-watermark"></div>
       </div>
       <div class="container">
         <div class="hero-content">
@@ -195,6 +196,22 @@ import Footer from '../components/Footer.astro';
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(30px, -30px) scale(1.1); }
     66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  .logo-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background-image: url('/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.1;
+    pointer-events: none;
+    filter: grayscale(100%);
   }
 
   .hero-content {
