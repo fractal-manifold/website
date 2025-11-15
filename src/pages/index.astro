@@ -1,0 +1,412 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Fractal Manifold - Startup Investment & AI Research">
+  <Header />
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+      <div class="container">
+        <div class="hero-content">
+          <h1>
+            <span class="gradient-text">Fractal Manifold</span>
+          </h1>
+          <p class="hero-subtitle">
+            Driving the future through strategic startup investments
+            and pioneering artificial intelligence research
+          </p>
+          <div class="hero-cta">
+            <a href="#startups" class="btn btn-primary">Investments</a>
+            <a href="#research" class="btn btn-secondary">Research</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Startups Section -->
+    <section id="startups" class="section startups-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Startup Investment</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="section-content">
+          <div class="content-grid">
+            <div class="content-main">
+              <p class="lead">
+                At Fractal Manifold, we identify and support innovative startups
+                that are redefining industries and creating disruptive solutions
+                for tomorrow's challenges.
+              </p>
+              <div class="features">
+                <div class="feature">
+                  <span class="bg-icon">🚀</span>
+                  <div class="feature-content">
+                    <h3>Strategic Vision</h3>
+                    <p>We identify opportunities with exponential transformation potential</p>
+                  </div>
+                </div>
+                <div class="feature">
+                  <span class="bg-icon">💡</span>
+                  <div class="feature-content">
+                    <h3>Innovation Ecosystem</h3>
+                    <p>Connecting entrepreneurs with resources, mentors, and technical expertise</p>
+                  </div>
+                </div>
+                <div class="feature">
+                  <span class="bg-icon">📊</span>
+                  <div class="feature-content">
+                    <h3>Accelerated Growth</h3>
+                    <p>Implementing data-driven strategies to scale operations</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Research Section -->
+    <section id="research" class="section research-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>AI Research</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="section-content">
+          <div class="content-grid">
+            <div class="content-main">
+              <p class="lead">
+                Our research division focuses on advancing the state of the art
+                in artificial intelligence, exploring new frontiers in machine learning,
+                neural networks, and cognitive systems.
+              </p>
+              <div class="features">
+                <div class="feature">
+                  <span class="bg-icon">🧠</span>
+                  <div class="feature-content">
+                    <h3>Advanced Deep Learning</h3>
+                    <p>Developing next-generation neural architectures</p>
+                  </div>
+                </div>
+                <div class="feature">
+                  <span class="bg-icon">🔬</span>
+                  <div class="feature-content">
+                    <h3>Fundamental Research</h3>
+                    <p>Exploring the theoretical foundations of artificial intelligence</p>
+                  </div>
+                </div>
+                <div class="feature">
+                  <span class="bg-icon">⚡</span>
+                  <div class="feature-content">
+                    <h3>Practical Applications</h3>
+                    <p>Transferring research insights into real-world solutions</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact-section">
+      <div class="container">
+        <div class="section-header centered">
+          <h2>Contact</h2>
+          <div class="section-line centered"></div>
+        </div>
+        <div class="contact-content">
+          <p class="contact-text">
+            Have an innovative startup or research idea?
+            We'd love to hear about your project.
+          </p>
+          <a href="mailto:contact@fractalmanifold.com" class="contact-email">
+            contact@fractalmanifold.com
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    padding-top: 80px;
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.3;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    top: -10%;
+    right: 10%;
+    animation-delay: 0s;
+  }
+
+  .orb-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--color-purple), transparent);
+    bottom: -20%;
+    left: -10%;
+    animation-delay: 5s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 8vw, 6rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--color-text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: transparent;
+    color: var(--color-gold-light);
+    border: 2px solid var(--color-gold);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+    color: var(--color-bg);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-purple-light);
+    border: 2px solid var(--color-purple);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-purple);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  /* Sections */
+  .section {
+    padding: 6rem 0;
+  }
+
+  .section-header {
+    margin-bottom: 4rem;
+  }
+
+  .section-header.centered {
+    text-align: center;
+  }
+
+  .section-header h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    margin-bottom: 1rem;
+  }
+
+  .section-line {
+    height: 3px;
+    width: 100px;
+    background: linear-gradient(90deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    border-radius: 2px;
+  }
+
+  .section-line.centered {
+    margin: 0 auto;
+  }
+
+  .lead {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.8;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .feature {
+    padding: 2rem;
+    background: var(--color-bg-secondary);
+    border-radius: 16px;
+    border: 1px solid rgba(243, 158, 11, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature:hover {
+    transform: translateY(-5px);
+    border-color: rgba(243, 158, 11, 0.3);
+    box-shadow: 0 10px 40px rgba(243, 158, 11, 0.1);
+  }
+
+  .feature .bg-icon {
+    position: absolute;
+    font-size: 8rem;
+    opacity: 0.15;
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .feature-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .feature p {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  /* Contact Section */
+  .contact-section {
+    padding: 8rem 0;
+  }
+
+  .contact-content {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .contact-text {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 2.5rem;
+  }
+
+  .contact-email {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-gold);
+    padding: 1.5rem 3rem;
+    border: 2px solid var(--color-gold);
+    border-radius: 12px;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .contact-email:hover {
+    background: var(--color-gold);
+    color: var(--color-bg);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .section {
+      padding: 4rem 0;
+    }
+
+    .section-header h2 {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .section-header.centered h2 {
+      align-items: center;
+    }
+
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
