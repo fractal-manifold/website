@@ -176,6 +176,7 @@ import Footer from '../components/Footer.astro';
     border-radius: 50%;
     filter: blur(100px);
     opacity: 0.4;
+    will-change: transform;
   }
 
   .orb-1 {
@@ -240,6 +241,12 @@ import Footer from '../components/Footer.astro';
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(25px, -20px) scale(1.25); }
     66% { transform: translate(-20px, 25px) scale(0.85); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-orb {
+      animation: none;
+    }
   }
 
   .logo-watermark {
