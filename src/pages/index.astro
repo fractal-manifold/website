@@ -13,6 +13,9 @@ import Footer from '../components/Footer.astro';
       <div class="hero-background">
         <div class="gradient-orb orb-1"></div>
         <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="gradient-orb orb-4"></div>
+        <div class="gradient-orb orb-5"></div>
         <div class="logo-watermark"></div>
       </div>
       <div class="container">
@@ -172,32 +175,78 @@ import Footer from '../components/Footer.astro';
     position: absolute;
     border-radius: 50%;
     filter: blur(100px);
-    opacity: 0.3;
-    animation: float 20s ease-in-out infinite;
+    opacity: 0.4;
+    will-change: transform;
   }
 
   .orb-1 {
     width: 500px;
     height: 500px;
     background: radial-gradient(circle, var(--color-gold), transparent);
-    top: -10%;
-    right: 10%;
-    animation-delay: 0s;
+    top: -15%;
+    right: 5%;
+    animation: float-main 12s ease-in-out infinite;
   }
 
   .orb-2 {
-    width: 600px;
-    height: 600px;
+    width: 550px;
+    height: 550px;
     background: radial-gradient(circle, var(--color-purple), transparent);
     bottom: -20%;
     left: -10%;
-    animation-delay: 5s;
+    animation: float-main 15s ease-in-out infinite reverse;
   }
 
-  @keyframes float {
+  .orb-3 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--color-gold-light), transparent);
+    top: 20%;
+    left: 15%;
+    opacity: 0.3;
+    animation: float-secondary 10s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+
+  .orb-4 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, var(--color-purple-light), transparent);
+    top: 20%;
+    right: 25%;
+    opacity: 0.35;
+    animation: float-secondary 13s ease-in-out infinite reverse;
+    animation-delay: -6s;
+  }
+
+  .orb-5 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    bottom: 10%;
+    right: 10%;
+    opacity: 0.25;
+    animation: float-secondary 9s ease-in-out infinite;
+    animation-delay: -2s;
+  }
+
+  @keyframes float-main {
     0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -30px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
+    25% { transform: translate(40px, -30px) scale(1.2); }
+    50% { transform: translate(-30px, 40px) scale(0.8); }
+    75% { transform: translate(25px, 20px) scale(1.15); }
+  }
+
+  @keyframes float-secondary {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(25px, -20px) scale(1.25); }
+    66% { transform: translate(-20px, 25px) scale(0.85); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-orb {
+      animation: none;
+    }
   }
 
   .logo-watermark {
@@ -432,6 +481,10 @@ import Footer from '../components/Footer.astro';
     .orb-2 {
       width: 400px;
       height: 400px;
+    }
+
+    .orb-3, .orb-4, .orb-5 {
+      display: none;
     }
 
     .logo-watermark {

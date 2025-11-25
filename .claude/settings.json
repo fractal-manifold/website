@@ -15,6 +15,12 @@
       "Bash(xdg-open:*)",
       "Bash(tree:*)",
       "Bash(xargs:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(gh api:*)",
+      "Bash(date *)",
       "WebSearch"
     ],
     "deny": [

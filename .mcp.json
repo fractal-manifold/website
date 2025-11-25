@@ -35,6 +35,13 @@
         "--allow-tool", "fill",
         "--allow-tool", "handle_dialog"
       ]
+    },
+    "nanobanana": {
+      "command": "uvx",
+      "args": ["nanobanana-mcp-server@latest"],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      }
     }
   }
 }
