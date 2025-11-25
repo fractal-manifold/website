@@ -72,12 +72,13 @@ Follow these steps to create a new branch:
 
 ## Title Cleaning Examples
 
-User input → Cleaned output:
-- `Add User Authentication` → `add-user-authentication`
-- `Fix: Bug in payment processor` → `fix-bug-in-payment-processor`
-- `Refactor / Code Cleanup!!!` → `refactor-code-cleanup`
-- `Update API endpoints for v2 migration` → `update-api-endpoints-for-v2-migration`
-- `This is a very long title that needs to be truncated` → `this-is-a-very-long-title-that-needs`
+| User Input | Cleaned Output |
+|------------|----------------|
+| Add User Authentication | add-user-authentication |
+| Fix: Bug in payment processor | fix-bug-in-payment-processor |
+| Refactor / Code Cleanup!!! | refactor-code-cleanup |
+| Update API endpoints for v2 migration | update-api-endpoints-for-v2-migration |
+| This is a very long title... | this-is-a-very-long-title-that-needs |
 
 ## Branch Type Detection
 
