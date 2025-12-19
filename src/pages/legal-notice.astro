@@ -1,0 +1,248 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Legal Notice | Fractal Manifold" description="Legal information and terms of use for Fractal Manifold S.L.">
+  <Header />
+
+  <main>
+    <section class="legal-page">
+      <div class="legal-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+      <div class="container">
+        <div class="legal-content">
+          <h1 class="legal-title">
+            <span class="gradient-text">Legal Notice</span>
+          </h1>
+
+          <article class="legal-section">
+            <h2>1. Company Information</h2>
+            <p>In compliance with Article 10 of Law 34/2002, of July 11, on Information Society Services and Electronic Commerce (LSSI-CE), the following information is provided:</p>
+            <ul>
+              <li><strong>Company Name:</strong> Fractal Manifold S.L.</li>
+              <li><strong>Tax Identification Number (CIF):</strong> B24958753</li>
+              <li><strong>Contact Email:</strong> <a href="mailto:contact@fractalmanifold.com">contact@fractalmanifold.com</a></li>
+            </ul>
+          </article>
+
+          <article class="legal-section">
+            <h2>2. Intellectual Property</h2>
+            <p>All content on this website, including but not limited to text, graphics, logos, icons, images, audio clips, and software, is the property of Fractal Manifold S.L. or its content suppliers and is protected by Spanish and international intellectual property laws.</p>
+            <p>The reproduction, distribution, public communication, transformation, or any other activity that may be carried out with the content of this website, even if the source is cited, is prohibited without the prior written consent of Fractal Manifold S.L.</p>
+          </article>
+
+          <article class="legal-section">
+            <h2>3. Terms of Use</h2>
+            <p>By accessing and using this website, you agree to comply with these terms. The use of this website is subject to the following conditions:</p>
+            <ul>
+              <li>Users agree to use the website and its contents in accordance with the law, morality, public order, and these terms.</li>
+              <li>Users agree not to use the website for illegal purposes or purposes that are contrary to these terms.</li>
+              <li>Users agree not to damage, disable, overload, or impair the website or interfere with any other party's use and enjoyment of the website.</li>
+            </ul>
+          </article>
+
+          <article class="legal-section">
+            <h2>4. Limitation of Liability</h2>
+            <p>Fractal Manifold S.L. shall not be liable for any damages arising from the use of this website, including but not limited to direct, indirect, incidental, punitive, and consequential damages.</p>
+            <p>While we strive to keep the information on this website accurate and up-to-date, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or availability of the website or the information contained on the website.</p>
+          </article>
+
+          <article class="legal-section">
+            <h2>5. Governing Law and Jurisdiction</h2>
+            <p>These terms shall be governed by and construed in accordance with the laws of Spain. Any disputes arising from the use of this website shall be subject to the exclusive jurisdiction of the courts of Spain.</p>
+          </article>
+
+          <article class="legal-section">
+            <h2>6. Contact</h2>
+            <p>For any questions regarding this legal notice, please contact us at:</p>
+            <p><a href="mailto:contact@fractalmanifold.com">contact@fractalmanifold.com</a></p>
+          </article>
+
+          <div class="legal-footer">
+            <p>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
+
+          <div class="back-home">
+            <a href="/" class="btn btn-primary">Back to Home</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    padding-top: 80px;
+  }
+
+  .legal-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 4rem 0;
+    overflow: hidden;
+  }
+
+  .legal-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.2;
+  }
+
+  .orb-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    top: 5%;
+    right: 10%;
+  }
+
+  .orb-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--color-purple), transparent);
+    bottom: 10%;
+    left: -5%;
+  }
+
+  .legal-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .legal-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .legal-section {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: rgba(26, 26, 26, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(243, 158, 11, 0.1);
+  }
+
+  .legal-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--color-gold);
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .legal-section p {
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .legal-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .legal-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .legal-section li {
+    color: var(--color-text-secondary);
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .legal-section li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1rem;
+    width: 6px;
+    height: 6px;
+    background: var(--color-gold);
+    border-radius: 50%;
+  }
+
+  .legal-section a {
+    color: var(--color-gold);
+    transition: color 0.3s ease;
+  }
+
+  .legal-section a:hover {
+    color: var(--color-gold-light);
+  }
+
+  .legal-footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(243, 158, 11, 0.1);
+  }
+
+  .legal-footer p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .back-home {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: transparent;
+    color: var(--color-gold-light);
+    border: 2px solid var(--color-gold);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+    color: var(--color-bg);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .legal-section {
+      padding: 1.25rem;
+    }
+  }
+</style>

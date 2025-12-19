@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; {new Date().getFullYear()} Fractal Manifold. All rights reserved.</p>
+      <p>&copy; {new Date().getFullYear()} Fractal Manifold. All rights reserved. · <a href="/legal-notice">Legal Notice</a></p>
     </div>
   </div>
 </footer>
@@ -73,6 +73,15 @@
   .footer-bottom p {
     color: var(--color-text-muted);
     font-size: 0.9rem;
+  }
+
+  .footer-bottom a {
+    color: var(--color-text-muted);
+    transition: color 0.3s ease;
+  }
+
+  .footer-bottom a:hover {
+    color: var(--color-gold);
   }
 
   @media (max-width: 768px) {

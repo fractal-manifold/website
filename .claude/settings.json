@@ -20,7 +20,7 @@
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
       "Bash(gh api:*)",
-      "Bash(date *)",
+      "Bash(date:*)",
       "WebSearch"
     ],
     "deny": [

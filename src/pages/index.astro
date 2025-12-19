@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="Fractal Manifold - Startup Investment & AI Research">
+<Layout title="Fractal Manifold - Deep Learning Research & Investment">
   <Header />
 
   <main>
@@ -24,56 +24,11 @@ import Footer from '../components/Footer.astro';
             <span class="gradient-text">Fractal Manifold</span>
           </h1>
           <p class="hero-subtitle">
-            Driving the future through strategic startup investments
-            and pioneering artificial intelligence research
+            Mathematical deep learning research
           </p>
           <div class="hero-cta">
-            <a href="#startups" class="btn btn-primary">Investments</a>
-            <a href="#research" class="btn btn-secondary">Research</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Startups Section -->
-    <section id="startups" class="section startups-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>Startup Investment</h2>
-          <div class="section-line"></div>
-        </div>
-        <div class="section-content">
-          <div class="content-grid">
-            <div class="content-main">
-              <p class="lead">
-                At Fractal Manifold, we identify and support innovative startups
-                that are redefining industries and creating disruptive solutions
-                for tomorrow's challenges.
-              </p>
-              <div class="features">
-                <div class="feature">
-                  <span class="bg-icon">🚀</span>
-                  <div class="feature-content">
-                    <h3>Strategic Vision</h3>
-                    <p>We identify opportunities with exponential transformation potential</p>
-                  </div>
-                </div>
-                <div class="feature">
-                  <span class="bg-icon">💡</span>
-                  <div class="feature-content">
-                    <h3>Innovation Ecosystem</h3>
-                    <p>Connecting entrepreneurs with resources, mentors, and technical expertise</p>
-                  </div>
-                </div>
-                <div class="feature">
-                  <span class="bg-icon">📊</span>
-                  <div class="feature-content">
-                    <h3>Accelerated Growth</h3>
-                    <p>Implementing data-driven strategies to scale operations</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <a href="#research" class="btn btn-primary">Research</a>
+            <a href="#startups" class="btn btn-secondary">Investments</a>
           </div>
         </div>
       </div>
@@ -82,38 +37,75 @@ import Footer from '../components/Footer.astro';
     <!-- Research Section -->
     <section id="research" class="section research-section">
       <div class="container">
+        <div class="research-areas">
+          <div class="section-header">
+            <h2>AI Research</h2>
+            <div class="section-line"></div>
+          </div>
+          <p class="lead">Deep learning has achieved remarkable results, but current architectures are hitting fundamental limits. We believe the path forward lies in mathematics—specifically in understanding the geometric structure of data and the symmetries that govern learning.</p>
+          <p class="lead">Fractal Manifold is a research lab focused on advancing deep learning through rigorous mathematical foundations. We work at the intersection of differential geometry, group theory, and neural network design to build models that are not just bigger, but fundamentally better.</p>
+          <div class="features">
+            <div class="feature">
+              <span class="bg-icon">🧠</span>
+              <div class="feature-content">
+                <h3>Advanced Deep Learning</h3>
+                <p>Developing next-generation neural architectures</p>
+              </div>
+            </div>
+            <div class="feature">
+              <span class="bg-icon">🔬</span>
+              <div class="feature-content">
+                <h3>Fundamental Research</h3>
+                <p>Exploring the theoretical foundations of artificial intelligence</p>
+              </div>
+            </div>
+            <div class="feature">
+              <span class="bg-icon">⚡</span>
+              <div class="feature-content">
+                <h3>Practical Applications</h3>
+                <p>Transferring research insights into real-world solutions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Founders Section -->
+    <section id="startups" class="section startups-section">
+      <div class="container">
         <div class="section-header">
-          <h2>AI Research</h2>
+          <h2>Founder Acceleration</h2>
           <div class="section-line"></div>
         </div>
         <div class="section-content">
           <div class="content-grid">
             <div class="content-main">
               <p class="lead">
-                Our research division focuses on advancing the state of the art
-                in artificial intelligence, exploring new frontiers in machine learning,
-                neural networks, and cognitive systems.
+                We partner with high-potential founders to unlock the full power
+                of artificial intelligence in their ventures. Our deep technical
+                expertise helps transform ambitious ideas into AI-driven success.
               </p>
               <div class="features">
                 <div class="feature">
-                  <span class="bg-icon">🧠</span>
+                  <span class="bg-icon">🎯</span>
                   <div class="feature-content">
-                    <h3>Advanced Deep Learning</h3>
-                    <p>Developing next-generation neural architectures</p>
+                    <h3>AI Strategy</h3>
+                    <p>Identifying where AI can create the most value in your business</p>
                   </div>
                 </div>
                 <div class="feature">
-                  <span class="bg-icon">🔬</span>
+                  <span class="bg-icon">🛠️</span>
                   <div class="feature-content">
-                    <h3>Fundamental Research</h3>
-                    <p>Exploring the theoretical foundations of artificial intelligence</p>
+                    <h3>Technical Partnership</h3>
+                    <p>Hands-on support from research to production-ready solutions</p>
                   </div>
                 </div>
                 <div class="feature">
-                  <span class="bg-icon">⚡</span>
+                  <span class="bg-icon">🚀</span>
                   <div class="feature-content">
-                    <h3>Practical Applications</h3>
-                    <p>Transferring research insights into real-world solutions</p>
+                    <h3>Growth Acceleration</h3>
+                    <p>Leveraging cutting-edge AI to scale faster and smarter</p>
                   </div>
                 </div>
               </div>
@@ -369,6 +361,37 @@ import Footer from '../components/Footer.astro';
     color: var(--color-text-secondary);
     margin-bottom: 3rem;
     line-height: 1.8;
+  }
+
+  /* Manifesto */
+  .manifesto {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .manifesto p {
+    font-size: 1.25rem;
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    margin-bottom: 1.5rem;
+  }
+
+  .manifesto-headline {
+    font-size: clamp(1.5rem, 3vw, 2rem) !important;
+    color: var(--color-text) !important;
+    font-weight: 600;
+    margin-bottom: 2rem !important;
+  }
+
+  .manifesto-closing {
+    font-size: 1.3rem !important;
+    color: var(--color-gold) !important;
+    font-weight: 500;
+    margin-top: 2rem;
+  }
+
+  .research-areas {
+    margin-top: 5rem;
   }
 
   .features {
