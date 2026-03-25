@@ -1,0 +1,1089 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Investment Decision Tool | Fractal Manifold" description="A data-driven tool to help decide whether to invest in a company now or wait for a better opportunity.">
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <script is:inline src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  </Fragment>
+
+  <Header />
+
+  <main>
+    <section class="tool-page">
+      <div class="tool-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+      <div class="container">
+        <div class="tool-content">
+
+          <h1 class="tool-title">
+            <span class="gradient-text">Investment Decision Tool</span>
+          </h1>
+          <p class="tool-subtitle">A data-driven guide for portfolio investment decisions</p>
+
+          <!-- Intro -->
+          <details class="intro-details">
+            <summary class="intro-summary">
+              <h2>How it works</h2>
+              <span class="intro-toggle-hint">Show explanation</span>
+            </summary>
+            <div class="intro-content">
+              <p class="intro-lead">Imagine you need to pick <strong>25 companies</strong> to invest in from a pool of <strong>40 candidates</strong>, but they show up for meetings <strong>one at a time in random order</strong>. You know each company's overall quality ranking, but you must decide on the spot: invest now, or pass and hope a better one comes along?</p>
+              <ul class="intro-points">
+                <li><strong>The catch:</strong> You can't go back. Once you pass on a company, that slot is gone. And some companies drop out before you even meet them &mdash; their round closes or they cancel. The longer a company waits, the more likely it drops out.</li>
+                <li><strong>The risk:</strong> Be too picky and you run out of options. Be too eager and you fill your portfolio with lower-ranked companies. Top-ranked companies are exponentially more valuable than lower-ranked ones.</li>
+                <li><strong>This tool helps:</strong> Given the current company's quality ranking and how far along you are, it calculates whether you should invest now or wait. It uses thousands of simulated scenarios to find the optimal strategy.</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Portfolio Settings -->
+          <div class="tool-card">
+            <div class="tool-card-label gold">Portfolio Settings</div>
+            <div class="grid-basic">
+              <div class="field">
+                <label for="paramN">Total companies</label>
+                <input type="number" id="paramN" value="40" min="5" max="200" />
+              </div>
+              <div class="field">
+                <label for="paramK">Investments needed</label>
+                <input type="number" id="paramK" value="25" min="1" max="200" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced settings (collapsible) -->
+          <details class="charts-details">
+            <summary class="charts-summary">
+              <h2>Dropout &amp; Value Settings</h2>
+              <span class="charts-toggle-hint">Show settings</span>
+            </summary>
+            <div class="charts-content">
+              <div class="grid-params">
+                <div class="field">
+                  <label for="paramPMin" id="pMinLabel">Early dropout chance: 10%</label>
+                  <input type="range" id="paramPMin" min="0" max="0.4" step="0.01" value="0.10" />
+                </div>
+                <div class="field">
+                  <label for="paramPMax" id="pMaxLabel">Late dropout chance: 50%</label>
+                  <input type="range" id="paramPMax" min="0.1" max="0.9" step="0.05" value="0.50" />
+                </div>
+                <div class="field">
+                  <label for="paramBeta" id="betaLabel" data-tooltip="Controls how fast the dropout probability increases from early to late. Higher = steeper jump near the end">Dropout acceleration: 3.0</label>
+                  <input type="range" id="paramBeta" min="0.5" max="6" step="0.1" value="3.0" />
+                </div>
+                <div class="field">
+                  <label for="paramLambda" id="lambdaLabel" data-tooltip="How much more valuable top-ranked companies are. Higher = top companies are worth exponentially more">Quality premium: 0.06</label>
+                  <input type="range" id="paramLambda" min="0.02" max="0.25" step="0.01" value="0.06" />
+                </div>
+              </div>
+              <div id="calIndicator" class="calibrating-indicator">
+                <div class="spinner"></div> Calibrating model via Monte Carlo&hellip;
+              </div>
+              <div class="charts-divider"></div>
+              <div class="charts-row">
+                <div>
+                  <div class="chart-title">Dropout probability by position</div>
+                  <canvas id="dropoutChart"></canvas>
+                </div>
+                <div>
+                  <div class="chart-title">Investment value by rank</div>
+                  <canvas id="valueChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- Meeting Board -->
+          <div class="tool-card">
+            <div class="board-header">
+              <div class="tool-card-label purple">Meeting Queue</div>
+              <button class="btn-reset" id="resetBoard" data-tooltip="Reset order to rank and clear all states">Reset</button>
+            </div>
+            <div class="board-legend">
+              <span class="legend-item"><span class="legend-dot dot-unknown"></span> In queue</span>
+              <span class="legend-item"><span class="legend-dot dot-waiting"></span> Undecided</span>
+              <span class="legend-item"><span class="legend-dot dot-invested"></span> Invested</span>
+              <span class="legend-item"><span class="legend-dot dot-canceled"></span> Canceled</span>
+            </div>
+            <p class="board-hint">Click to change state (in queue &rarr; undecided &rarr; invested &rarr; canceled). Drag to reorder. The first grey tile is the next meeting.</p>
+            <div class="board-grid" id="boardGrid"></div>
+            <div class="board-current" id="boardCurrent"></div>
+            <div class="derived-row">
+              <div class="derived" data-tooltip="Companies you have not yet met or decided on">
+                <div class="d-label">Companies left</div>
+                <div class="d-value" id="derivedRemaining">40</div>
+              </div>
+              <div class="derived" data-tooltip="How many more investments you need to reach your target">
+                <div class="d-label">Still need</div>
+                <div class="d-value" id="derivedNeeded">25</div>
+              </div>
+              <div class="derived" data-tooltip="Total meetings resolved (invested + fell through)">
+                <div class="d-label">Meetings used</div>
+                <div class="d-value" id="derivedUsed">0</div>
+              </div>
+              <div class="derived" data-tooltip="How many more companies you can expect to actually meet, considering dropouts">
+                <div class="d-label">Expected ahead</div>
+                <div class="d-value" id="derivedSupply">&mdash;</div>
+              </div>
+              <div class="derived" data-tooltip="Portfolio quality score (0 = empty, 5 = worst full portfolio, 10 = best possible)">
+                <div class="d-label">Portfolio score</div>
+                <div class="d-value highlight" id="derivedScore">&mdash;</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Decision Result -->
+          <div id="decisionBox" class="decision-box accept">
+            <div class="decision-header">
+              <div class="decision-icon" id="decIcon">&#x2705;</div>
+              <div>
+                <div class="decision-title" id="decTitle">INVEST</div>
+                <div class="decision-confidence">Confidence: <span id="decConf" class="conf-high">STRONG RECOMMENDATION</span></div>
+              </div>
+            </div>
+            <div class="decision-reason" id="decReason"></div>
+            <div class="stat-grid">
+              <div class="stat" data-tooltip="Invest in companies ranked at or better than this number">
+                <div class="label">Quality bar</div>
+                <div class="value" id="decThresh">&mdash;</div>
+              </div>
+              <div class="stat" data-tooltip="Extra meetings you expect beyond the minimum needed. Higher = more room to be picky">
+                <div class="label">Breathing room</div>
+                <div class="value" id="decSlack">&mdash;</div>
+              </div>
+              <div class="stat" data-tooltip="Remaining companies you have not yet met">
+                <div class="label">Companies left</div>
+                <div class="value" id="decSlotsLeft">&mdash;</div>
+              </div>
+              <div class="stat" data-tooltip="How urgent it is to start accepting. LOW means you can afford to be selective">
+                <div class="label">Urgency</div>
+                <div class="value" id="decRisk">&mdash;</div>
+              </div>
+              <div class="stat" data-tooltip="Auto-calibrated parameter controlling how selective you can be (higher = pickier)">
+                <div class="label">Selectivity</div>
+                <div class="value highlight" id="decAlpha">&mdash;</div>
+              </div>
+            </div>
+            <div class="safety-bar">
+              <div class="bar-header">
+                <span class="l">Portfolio completion confidence</span>
+                <span class="r" id="safetyPct">&mdash;</span>
+              </div>
+              <div class="bar-bg"><div class="bar-fill" id="safetyFill" style="width:80%;background:#10B981"></div></div>
+              <div class="bar-zones"><span>Must accept most</span><span>Can be selective</span></div>
+            </div>
+          </div>
+
+          <!-- Mathematical Model (collapsible) -->
+          <details class="math-details">
+            <summary class="math-summary">
+              <h2>Mathematical Model</h2>
+              <span class="toggle-hint">Show formulas</span>
+            </summary>
+            <div class="math-content-wrapper">
+              <div class="math-block">
+                <div class="math-label">State Variables</div>
+                <div class="math-content" id="math1"></div>
+                <div class="math-note">These track where you are: how many investments you have made (<em>i</em>) and how many meetings fell through (<em>c</em>). Everything else is derived from these two numbers.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Dropout Probability (Exponential)</div>
+                <div class="math-content" id="math2"></div>
+                <div class="math-note">The chance a company drops out grows from p<sub>min</sub> (early meetings, ~10%) to p<sub>max</sub> (late meetings, ~50%). The parameter &beta; controls how sharply the curve rises &mdash; higher &beta; means most of the increase happens near the end.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Expected Future Meetings</div>
+                <div class="math-content" id="math3"></div>
+                <div class="math-note">For each remaining company, we calculate the probability it actually shows up (1 minus its dropout probability) and add them all up. This gives the expected number of meetings you will still have.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Breathing Room (Slack)</div>
+                <div class="math-content" id="math4"></div>
+                <div class="math-note">The gap between how many meetings you expect to have and how many you absolutely need. When this hits zero, you must invest in everyone you meet &mdash; there is no room to be selective.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Acceptance Threshold</div>
+                <div class="math-content" id="math5"></div>
+                <div class="math-note">The quality cutoff. Any company ranked at or better (lower number) than this threshold gets a green light. When you have lots of breathing room, the bar is high (selective). As it shrinks, the bar drops smoothly until you must accept anyone.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Value Function (Exponential)</div>
+                <div class="math-content" id="mathVal"></div>
+                <div class="math-note">Top-ranked companies are exponentially more valuable. The parameter &lambda; controls how steep this is. With &lambda;=0.06, the #1 company is worth about 10&times; the #40 company, making quality important but not overwhelmingly so.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Optimal Selectivity &mdash; Monte Carlo Calibration</div>
+                <div class="math-content" id="math6"></div>
+                <div class="math-note">The model runs thousands of simulated portfolios to find the best balance between quality and safety. The total portfolio value (using the exponential value function) is multiplied by the probability of actually completing the portfolio. The &alpha; that maximizes this product is the optimal one.</div>
+              </div>
+              <div class="math-block">
+                <div class="math-label">Decision Rule</div>
+                <div class="math-content" id="math7"></div>
+                <div class="math-note">Simple: if the company's rank is at or below the quality bar, invest.</div>
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main { padding-top: 80px; }
+
+  .tool-page { position: relative; min-height: 100vh; padding: 3rem 0 4rem; overflow: hidden; }
+  .tool-background { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; }
+  .gradient-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.15; }
+  .orb-1 { width: 450px; height: 450px; background: radial-gradient(circle, var(--color-gold), transparent); top: 3%; right: 8%; }
+  .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, var(--color-purple), transparent); bottom: 15%; left: -5%; }
+  .tool-content { max-width: 900px; margin: 0 auto; }
+
+  .tool-title { font-family: var(--font-display); font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 0.5rem; text-align: center; }
+  .gradient-text { background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .tool-subtitle { text-align: center; color: var(--color-text-muted); font-size: 1rem; font-style: italic; margin-bottom: 2.5rem; }
+
+  /* Intro (collapsible) */
+  .intro-details { background: rgba(26,26,26,0.5); border: 1px solid rgba(243,158,11,0.1); border-radius: 16px; margin-bottom: 1.5rem; overflow: hidden; }
+  .intro-summary { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; cursor: pointer; list-style: none; user-select: none; transition: background 0.2s; }
+  .intro-summary::-webkit-details-marker { display: none; }
+  .intro-summary:hover { background: rgba(255,255,255,0.02); }
+  .intro-summary h2 { font-family: var(--font-display); font-size: 1.1rem; color: var(--color-gold); letter-spacing: 0.5px; }
+  .intro-toggle-hint { font-size: 0.75rem; color: var(--color-text-muted); transition: color 0.2s; }
+  .intro-details[open] .intro-toggle-hint { color: var(--color-text-secondary); }
+  .intro-content { padding: 0 1.5rem 1.5rem; }
+  .intro-lead { color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 1rem; font-size: 0.95rem; }
+  .intro-lead strong { color: var(--color-text); }
+  .intro-points { list-style: none; padding: 0; margin: 0; }
+  .intro-points li { color: var(--color-text-secondary); padding: 0.4rem 0 0.4rem 1.5rem; position: relative; line-height: 1.6; font-size: 0.92rem; }
+  .intro-points li::before { content: ''; position: absolute; left: 0; top: 0.85rem; width: 6px; height: 6px; background: var(--color-gold); border-radius: 50%; }
+  .intro-points li strong { color: var(--color-text); }
+
+  /* Cards */
+  .tool-card { background: rgba(26,26,26,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; backdrop-filter: blur(8px); }
+  .tool-card-label { font-family: var(--font-display); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+  .tool-card-label.gold { color: var(--color-gold); }
+  .tool-card-label.purple { color: var(--color-purple); }
+  .grid-basic { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-params { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+  .charts-divider { margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.07); }
+
+  /* Fields */
+  .field label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); margin-bottom: 0.4rem; }
+  .field input[type="number"] { width: 100%; padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: var(--color-text); font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; outline: none; transition: border-color 0.2s; }
+  .field input[type="number"]:focus { border-color: var(--color-gold); }
+  .field input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); outline: none; margin-top: 0.5rem; cursor: pointer; }
+  .field input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--color-gold); cursor: pointer; border: 2px solid var(--color-bg); }
+  .field input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--color-gold); cursor: pointer; border: 2px solid var(--color-bg); }
+
+  /* Charts collapsible */
+  .charts-details { background: rgba(26,26,26,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 1.5rem; overflow: hidden; }
+  .charts-summary { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; cursor: pointer; list-style: none; user-select: none; transition: background 0.2s; }
+  .charts-summary::-webkit-details-marker { display: none; }
+  .charts-summary:hover { background: rgba(255,255,255,0.02); }
+  .charts-summary h2 { font-family: var(--font-display); font-size: 0.9rem; color: var(--color-gold); letter-spacing: 0.5px; }
+  .charts-toggle-hint { font-size: 0.75rem; color: var(--color-text-muted); transition: color 0.2s; }
+  .charts-details[open] .charts-toggle-hint { color: var(--color-text-secondary); }
+  .charts-content { padding: 0 1.5rem 1.5rem; }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .chart-title { font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; }
+  .charts-content canvas { width: 100%; height: 170px; display: block; }
+  .calibrating-indicator { font-size: 0.72rem; color: var(--color-purple); font-weight: 600; display: none; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
+  .calibrating-indicator.active { display: flex; }
+  .spinner { width: 12px; height: 12px; border: 2px solid var(--color-purple); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Board */
+  .board-header { display: flex; align-items: center; justify-content: space-between; }
+  .board-header .tool-card-label { margin-bottom: 0; }
+  .btn-reset { padding: 0.35rem 0.85rem; font-size: 0.7rem; font-weight: 600; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: var(--color-text-muted); cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+  .btn-reset:hover { border-color: var(--color-gold); color: var(--color-gold); background: rgba(245,158,11,0.08); }
+
+  .board-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.75rem 0 0.4rem; }
+  .legend-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; color: var(--color-text-muted); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid rgba(255,255,255,0.3); }
+  .dot-unknown { background: transparent; }
+  .dot-waiting { background: #92600a; border-color: #b8860b; }
+  .dot-invested { background: #0d6b4a; border-color: #10B981; }
+  .dot-canceled { background: #7f1d1d; border-color: #EF4444; }
+
+  .board-hint { font-size: 0.68rem; color: var(--color-text-muted); margin-bottom: 0.75rem; font-style: italic; }
+
+  .board-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 0.75rem; min-height: 40px; }
+
+  .board-grid :global(.tile) {
+    width: 48px; height: 48px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    cursor: grab; user-select: none;
+    transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+    position: relative;
+    border: 2px solid;
+    color: #FFFFFF;
+  }
+  .board-grid :global(.tile:hover) { transform: scale(1.1); z-index: 2; }
+  .board-grid :global(.tile:active) { cursor: grabbing; transform: scale(0.95); }
+
+  .board-grid :global(.tile.unknown) { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.6); }
+  .board-grid :global(.tile.waiting) { background: #78520d; border-color: #d4a017; color: #FEF3C7; }
+  .board-grid :global(.tile.invested) { background: #065f46; border-color: #10B981; color: #D1FAE5; }
+  .board-grid :global(.tile.canceled) { background: #7f1d1d; border-color: #EF4444; color: #FEE2E2; }
+
+  .board-grid :global(.tile.current-meeting) { box-shadow: 0 0 0 2px #FBBF24, 0 0 14px rgba(245,158,11,0.4); border-color: #FBBF24; }
+  .board-grid :global(.tile.dragging) { opacity: 0.3; }
+
+  .board-current { font-size: 0.82rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); }
+  .board-current strong { color: #FBBF24; }
+  .board-current.no-meeting { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: var(--color-text-muted); }
+
+  /* Derived row */
+  .derived-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.07); }
+  .derived { flex: 1; min-width: 70px; padding: 0.5rem 0.4rem; border-radius: 8px; background: rgba(255,255,255,0.02); text-align: center; position: relative; }
+  .derived .d-label { font-size: 0.58rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .derived .d-value { font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 0.1rem; }
+  .derived .d-value.danger { color: #EF4444; }
+  .derived .d-value.warn { color: var(--color-gold); }
+  .derived .d-value.highlight { color: var(--color-purple); }
+
+  /* Tooltips */
+  [data-tooltip] { position: relative; cursor: help; }
+  [data-tooltip]::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 0.5rem 0.75rem; background: var(--color-bg-secondary); border: 1px solid rgba(243,158,11,0.2); border-radius: 8px; color: var(--color-text-secondary); font-size: 0.72rem; line-height: 1.4; width: max-content; max-width: 220px; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 10; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  [data-tooltip]:hover::after { opacity: 1; }
+
+  /* Decision box */
+  .decision-box { border-radius: 16px; padding: 1.5rem; border: 1px solid; transition: all 0.3s; margin-bottom: 1.5rem; }
+  .decision-box.accept { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.25); }
+  .decision-box.reject { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.25); }
+  .decision-box.neutral { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
+  .decision-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+  .decision-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 2px solid; flex-shrink: 0; }
+  .decision-box.accept .decision-icon { background: rgba(16,185,129,0.12); border-color: #10B981; }
+  .decision-box.reject .decision-icon { background: rgba(245,158,11,0.12); border-color: var(--color-gold); }
+  .decision-box.neutral .decision-icon { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); }
+  .decision-title { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 1px; }
+  .decision-confidence { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.15rem; }
+  .decision-confidence span { font-weight: 700; }
+  .conf-high { color: #10B981 !important; }
+  .conf-medium-high { color: var(--color-gold) !important; }
+  .conf-medium { color: #F97316 !important; }
+  .decision-reason { font-size: 0.92rem; line-height: 1.7; margin-bottom: 1.2rem; color: var(--color-text-secondary); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+  .stat { text-align: center; padding: 0.75rem 0.4rem; border-radius: 10px; background: rgba(255,255,255,0.03); position: relative; }
+  .stat .label { font-size: 0.58rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
+  .stat .value { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .stat .value.warn { color: var(--color-gold); }
+  .stat .value.danger { color: #EF4444; }
+  .stat .value.highlight { color: var(--color-purple); }
+
+  .safety-bar { margin-top: 1rem; }
+  .safety-bar .bar-header { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.4rem; }
+  .safety-bar .bar-header .l { color: var(--color-text-muted); }
+  .safety-bar .bar-header .r { font-weight: 700; }
+  .safety-bar .bar-bg { height: 10px; border-radius: 5px; background: rgba(255,255,255,0.05); overflow: hidden; }
+  .safety-bar .bar-fill { height: 100%; border-radius: 5px; transition: width 0.4s ease; }
+  .safety-bar .bar-zones { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--color-text-muted); margin-top: 0.3rem; }
+
+  /* Math collapsible */
+  .math-details { background: rgba(26,26,26,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 1.5rem; overflow: hidden; }
+  .math-summary { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; cursor: pointer; list-style: none; user-select: none; transition: background 0.2s; }
+  .math-summary::-webkit-details-marker { display: none; }
+  .math-summary:hover { background: rgba(255,255,255,0.02); }
+  .math-summary h2 { font-family: var(--font-display); font-size: 0.9rem; color: var(--color-gold); letter-spacing: 0.5px; }
+  .toggle-hint { font-size: 0.75rem; color: var(--color-text-muted); transition: color 0.2s; }
+  .math-details[open] .toggle-hint { color: var(--color-text-secondary); }
+  .math-content-wrapper { padding: 0 1.5rem 1.5rem; }
+  .math-block { padding: 1rem 1.25rem; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.75rem; }
+  .math-block:last-child { margin-bottom: 0; }
+  .math-block .math-label { font-size: 0.68rem; font-weight: 700; color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; }
+  .math-block .math-content { text-align: center; padding: 0.25rem 0; overflow-x: auto; }
+  .math-block .math-note { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 0.6rem; line-height: 1.6; }
+  .math-block .math-note em { color: var(--color-text-secondary); font-style: italic; }
+  .math-block :global(.katex) { font-size: 1.05em; }
+
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .grid-params { grid-template-columns: 1fr 1fr; }
+    .stat-grid { grid-template-columns: repeat(3, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .tool-card { padding: 1.25rem; }
+    .math-content-wrapper, .charts-content { padding: 0 1.25rem 1.25rem; }
+    .board-grid :global(.tile) { width: 42px; height: 42px; font-size: 0.8rem; }
+  }
+  @media (max-width: 480px) {
+    .grid-params { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .decision-title { font-size: 1.2rem; }
+    .tool-card { padding: 1rem; }
+    .math-content-wrapper, .charts-content { padding: 0 1rem 1rem; }
+    .board-grid :global(.tile) { width: 38px; height: 38px; font-size: 0.75rem; }
+    .board-legend { gap: 0.6rem; }
+  }
+</style>
+
+<script is:inline>
+// ══════════════════════════════════════════════════════════════
+// GLOBAL STATE
+// ══════════════════════════════════════════════════════════════
+var ALPHA = 0.80;
+var calibrationTimer = null;
+var STORAGE_KEY = 'fm_investment_model';
+
+// Board state: { order: [rank1, rank2, ...], states: { rank: 'unknown'|'waiting'|'invested'|'canceled' } }
+var boardState = { order: [], states: {} };
+
+function getParams() {
+  return {
+    N: +document.getElementById('paramN').value,
+    K: +document.getElementById('paramK').value,
+    pMin: +document.getElementById('paramPMin').value,
+    pMax: +document.getElementById('paramPMax').value,
+    beta: +document.getElementById('paramBeta').value,
+    lambda: +document.getElementById('paramLambda').value
+  };
+}
+
+// ══════════════════════════════════════════════════════════════
+// CORE FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+function dropProb(j, n, pMin, pMax, beta) {
+  if (n <= 0) return pMin;
+  return pMin + (pMax - pMin) * (Math.exp(beta * j / n) - 1) / (Math.exp(beta) - 1);
+}
+function expSup(n, pMin, pMax, beta) {
+  var s = 0; for (var j = 1; j <= n; j++) s += 1 - dropProb(j, n, pMin, pMax, beta); return s;
+}
+function companyValue(r, N, lambda) { return Math.exp(lambda * (N - r)); }
+
+function computeThreshold(N, K, remaining, picksNeeded, pMin, pMax, beta, alpha) {
+  if (alpha === undefined) alpha = ALPHA;
+  if (picksNeeded <= 0) return { threshold: 0, slack: Infinity, urgency: 0, es: 0 };
+  if (remaining <= 0) return { threshold: N, slack: 0, urgency: 1, es: 0 };
+  if (picksNeeded >= remaining) return { threshold: N, slack: 0, urgency: 1, es: remaining };
+  var es = expSup(remaining - 1, pMin, pMax, beta);
+  var slack = es - (picksNeeded - 1);
+  var urgency = Math.max(0, Math.min(1, 1 - slack / Math.max(picksNeeded, 1)));
+  var t;
+  if (slack <= 0) { t = N; }
+  else { t = Math.ceil(N * picksNeeded / (picksNeeded + slack * alpha)); t = Math.min(N, Math.max(picksNeeded, t)); }
+  return { threshold: t, slack: Math.max(0, slack), urgency: urgency, es: es };
+}
+
+// ══════════════════════════════════════════════════════════════
+// MONTE CARLO CALIBRATION
+// ══════════════════════════════════════════════════════════════
+function calibrateAlpha() {
+  var p = getParams(); var N = p.N, K = p.K, pMin = p.pMin, pMax = p.pMax, beta = p.beta, lambda = p.lambda;
+  document.getElementById('calIndicator').classList.add('active');
+  setTimeout(function() {
+    var bestA = 0.8, bestS = -Infinity;
+    for (var a = 0.2; a <= 3.01; a += 0.1) {
+      var alpha = Math.round(a * 100) / 100; var totalVal = 0, completed = 0;
+      for (var sim = 0; sim < 2000; sim++) {
+        var order = []; for (var i = 1; i <= N; i++) order.push(i);
+        for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = order[i]; order[i] = order[j]; order[j] = tmp; }
+        var acc = [], canc = 0;
+        for (var i = 0; i < order.length && acc.length < K; i++) {
+          var rem = N - acc.length - canc;
+          if (Math.random() < dropProb(1, rem, pMin, pMax, beta)) { canc++; continue; }
+          var th = computeThreshold(N, K, rem, K - acc.length, pMin, pMax, beta, alpha).threshold;
+          if (order[i] <= th) acc.push(order[i]); else canc++;
+        }
+        var val = 0; for (var k = 0; k < acc.length; k++) val += companyValue(acc[k], N, lambda);
+        totalVal += val; if (acc.length >= K) completed++;
+      }
+      var score = (totalVal / 2000) * (completed / 2000);
+      if (score > bestS) { bestS = score; bestA = alpha; }
+    }
+    ALPHA = bestA;
+    document.getElementById('calIndicator').classList.remove('active');
+    computeDecision();
+  }, 30);
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOARD — State management
+// ══════════════════════════════════════════════════════════════
+function initBoard(N) {
+  boardState.order = [];
+  boardState.states = {};
+  for (var i = 1; i <= N; i++) {
+    boardState.order.push(i);
+    boardState.states[i] = 'unknown';
+  }
+}
+
+function resizeBoard(newN) {
+  var oldN = boardState.order.length;
+  if (newN === oldN) return;
+  if (newN > oldN) {
+    for (var i = oldN + 1; i <= newN; i++) { boardState.order.push(i); boardState.states[i] = 'unknown'; }
+  } else {
+    // Remove ranks > newN
+    boardState.order = boardState.order.filter(function(r) { return r <= newN; });
+    var newStates = {};
+    for (var i = 0; i < boardState.order.length; i++) { newStates[boardState.order[i]] = boardState.states[boardState.order[i]] || 'unknown'; }
+    boardState.states = newStates;
+  }
+}
+
+function getBoardStats() {
+  var invested = 0, canceled = 0, waiting = 0, unknown = 0, currentRank = null;
+  var investedRanks = [];
+  for (var i = 0; i < boardState.order.length; i++) {
+    var r = boardState.order[i];
+    var s = boardState.states[r] || 'unknown';
+    if (s === 'invested') { invested++; investedRanks.push(r); }
+    else if (s === 'canceled') { canceled++; }
+    else if (s === 'waiting') { waiting++; }
+    else { unknown++; if (currentRank === null) currentRank = r; }
+  }
+  return { invested: invested, canceled: canceled, waiting: waiting, unknown: unknown, currentRank: currentRank, investedRanks: investedRanks };
+}
+
+function cycleTileState(rank) {
+  var current = boardState.states[rank] || 'unknown';
+  var cycle = ['unknown', 'waiting', 'invested', 'canceled'];
+  var idx = cycle.indexOf(current);
+  boardState.states[rank] = cycle[(idx + 1) % cycle.length];
+  saveState();
+  renderBoard();
+  computeDecision();
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOARD — Rendering
+// ══════════════════════════════════════════════════════════════
+function renderBoard() {
+  var grid = document.getElementById('boardGrid');
+  var stats = getBoardStats();
+
+  // Clear and rebuild
+  grid.innerHTML = '';
+  for (var i = 0; i < boardState.order.length; i++) {
+    var rank = boardState.order[i];
+    var state = boardState.states[rank] || 'unknown';
+    var tile = document.createElement('div');
+    tile.className = 'tile ' + state;
+    tile.textContent = rank;
+    tile.setAttribute('draggable', 'true');
+    tile.setAttribute('data-rank', rank);
+    tile.setAttribute('data-index', i);
+    if (rank === stats.currentRank) tile.classList.add('current-meeting');
+    // Click to cycle
+    (function(r) { tile.addEventListener('click', function() { if (!didDrag) cycleTileState(r); didDrag = false; }); })(rank);
+    // Drag events
+    tile.addEventListener('dragstart', onDragStart);
+    tile.addEventListener('dragover', onDragOver);
+    tile.addEventListener('dragend', onDragEnd);
+    // Touch support
+    tile.addEventListener('touchstart', onTouchStart, { passive: false });
+    grid.appendChild(tile);
+  }
+
+  // Update current meeting indicator
+  var currentEl = document.getElementById('boardCurrent');
+  if (stats.currentRank !== null) {
+    currentEl.innerHTML = 'Next meeting: company <strong>rank ' + stats.currentRank + '</strong> (position ' + (boardState.order.indexOf(stats.currentRank) + 1) + ' in queue)';
+    currentEl.className = 'board-current';
+  } else {
+    currentEl.innerHTML = 'No companies left in the queue. All meetings have been processed or are undecided.';
+    currentEl.className = 'board-current no-meeting';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOARD — Drag and drop
+// ══════════════════════════════════════════════════════════════
+var dragTile = null;
+var didDrag = false;
+
+function onDragStart(e) {
+  dragTile = this;
+  didDrag = true;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', '');
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (!dragTile || this === dragTile) return;
+  var grid = document.getElementById('boardGrid');
+  var tiles = Array.prototype.slice.call(grid.children);
+  var fromIdx = tiles.indexOf(dragTile);
+  var toIdx = tiles.indexOf(this);
+  if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+  // Move the tile in the DOM — causes live reflow
+  if (fromIdx < toIdx) {
+    grid.insertBefore(dragTile, this.nextSibling);
+  } else {
+    grid.insertBefore(dragTile, this);
+  }
+}
+
+function onDragEnd() {
+  if (dragTile) dragTile.classList.remove('dragging');
+  // Read final order from DOM and sync to boardState
+  var grid = document.getElementById('boardGrid');
+  var tiles = grid.children;
+  var newOrder = [];
+  for (var i = 0; i < tiles.length; i++) {
+    newOrder.push(+tiles[i].getAttribute('data-rank'));
+    tiles[i].setAttribute('data-index', i);
+  }
+  boardState.order = newOrder;
+  dragTile = null;
+  saveState();
+  // Update current-meeting highlight and derived values
+  updateCurrentHighlight();
+  computeDecision();
+}
+
+function updateCurrentHighlight() {
+  var grid = document.getElementById('boardGrid');
+  var tiles = grid.children;
+  var stats = getBoardStats();
+  for (var i = 0; i < tiles.length; i++) {
+    var r = +tiles[i].getAttribute('data-rank');
+    tiles[i].classList.toggle('current-meeting', r === stats.currentRank);
+  }
+  var currentEl = document.getElementById('boardCurrent');
+  if (stats.currentRank !== null) {
+    currentEl.innerHTML = 'Next meeting: company <strong>rank ' + stats.currentRank + '</strong> (position ' + (boardState.order.indexOf(stats.currentRank) + 1) + ' in queue)';
+    currentEl.className = 'board-current';
+  } else {
+    currentEl.innerHTML = 'No companies left in the queue. All meetings have been processed or are undecided.';
+    currentEl.className = 'board-current no-meeting';
+  }
+}
+
+// Touch-based drag for mobile (live reorder)
+var touchState = null;
+
+function onTouchStart(e) {
+  var tile = e.currentTarget;
+  var touch = e.touches[0];
+  touchState = {
+    tile: tile,
+    startX: touch.clientX,
+    startY: touch.clientY,
+    longPress: false,
+    clone: null,
+    timeout: setTimeout(function() {
+      touchState.longPress = true;
+      didDrag = true;
+      touchState.clone = tile.cloneNode(true);
+      touchState.clone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.85;transform:scale(1.15);width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;border-radius:8px;border:2px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);';
+      // Copy state class styles
+      var cls = tile.className;
+      if (cls.indexOf('waiting') >= 0) { touchState.clone.style.background = '#78520d'; touchState.clone.style.borderColor = '#d4a017'; touchState.clone.style.color = '#FEF3C7'; }
+      else if (cls.indexOf('invested') >= 0) { touchState.clone.style.background = '#065f46'; touchState.clone.style.borderColor = '#10B981'; touchState.clone.style.color = '#D1FAE5'; }
+      else if (cls.indexOf('canceled') >= 0) { touchState.clone.style.background = '#7f1d1d'; touchState.clone.style.borderColor = '#EF4444'; touchState.clone.style.color = '#FEE2E2'; }
+      document.body.appendChild(touchState.clone);
+      tile.classList.add('dragging');
+      positionClone(touch);
+    }, 300)
+  };
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('touchend', onTouchEnd);
+}
+
+function onTouchMove(e) {
+  if (!touchState) return;
+  var touch = e.touches[0];
+  if (!touchState.longPress) {
+    var dx = touch.clientX - touchState.startX;
+    var dy = touch.clientY - touchState.startY;
+    if (Math.abs(dx) + Math.abs(dy) > 10) { clearTimeout(touchState.timeout); cleanupTouch(); }
+    return;
+  }
+  e.preventDefault();
+  positionClone(touch);
+  // Live reorder: find tile under cursor and move
+  var el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (el && el.classList.contains('tile') && el !== touchState.tile) {
+    var grid = document.getElementById('boardGrid');
+    var tiles = Array.prototype.slice.call(grid.children);
+    var fromIdx = tiles.indexOf(touchState.tile);
+    var toIdx = tiles.indexOf(el);
+    if (fromIdx >= 0 && toIdx >= 0 && fromIdx !== toIdx) {
+      if (fromIdx < toIdx) { grid.insertBefore(touchState.tile, el.nextSibling); }
+      else { grid.insertBefore(touchState.tile, el); }
+    }
+  }
+}
+
+function onTouchEnd(e) {
+  if (!touchState) return;
+  clearTimeout(touchState.timeout);
+  if (touchState.longPress && touchState.clone) {
+    document.body.removeChild(touchState.clone);
+    touchState.tile.classList.remove('dragging');
+    // Sync order from DOM
+    var grid = document.getElementById('boardGrid');
+    var tiles = grid.children;
+    var newOrder = [];
+    for (var i = 0; i < tiles.length; i++) {
+      newOrder.push(+tiles[i].getAttribute('data-rank'));
+      tiles[i].setAttribute('data-index', i);
+    }
+    boardState.order = newOrder;
+    saveState();
+    updateCurrentHighlight();
+    computeDecision();
+  }
+  cleanupTouch();
+}
+
+function positionClone(touch) {
+  if (touchState && touchState.clone) {
+    touchState.clone.style.left = (touch.clientX - 24) + 'px';
+    touchState.clone.style.top = (touch.clientY - 24) + 'px';
+  }
+}
+
+function cleanupTouch() {
+  document.removeEventListener('touchmove', onTouchMove);
+  document.removeEventListener('touchend', onTouchEnd);
+  touchState = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// PERSISTENCE — localStorage
+// ══════════════════════════════════════════════════════════════
+function saveState() {
+  var p = getParams();
+  var data = { order: boardState.order, states: boardState.states, params: { N: p.N, K: p.K, pMin: p.pMin, pMax: p.pMax, beta: p.beta, lambda: p.lambda } };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    var data = JSON.parse(raw);
+    if (!data || !data.order || !Array.isArray(data.order) || !data.order.length || !data.states || !data.params) return false;
+    // Validate that order contains numbers
+    if (typeof data.order[0] !== 'number') { localStorage.removeItem(STORAGE_KEY); return false; }
+    // Restore params
+    document.getElementById('paramN').value = data.params.N;
+    document.getElementById('paramK').value = data.params.K;
+    document.getElementById('paramPMin').value = data.params.pMin;
+    document.getElementById('paramPMax').value = data.params.pMax;
+    document.getElementById('paramBeta').value = data.params.beta;
+    document.getElementById('paramLambda').value = data.params.lambda;
+    // Update labels
+    document.getElementById('pMinLabel').textContent = 'Early dropout chance: ' + (data.params.pMin * 100).toFixed(0) + '%';
+    document.getElementById('pMaxLabel').textContent = 'Late dropout chance: ' + (data.params.pMax * 100).toFixed(0) + '%';
+    document.getElementById('betaLabel').textContent = 'Dropout acceleration: ' + data.params.beta.toFixed(1);
+    document.getElementById('lambdaLabel').textContent = 'Quality premium: ' + data.params.lambda.toFixed(2);
+    // Restore board
+    boardState.order = data.order;
+    boardState.states = data.states;
+    return true;
+  } catch (e) { return false; }
+}
+
+function resetBoard() {
+  var N = getParams().N;
+  initBoard(N);
+  saveState();
+  renderBoard();
+  computeDecision();
+}
+
+// ══════════════════════════════════════════════════════════════
+// PORTFOLIO SCORE
+// ══════════════════════════════════════════════════════════════
+function computePortfolioScore() {
+  var p = getParams(); var N = p.N, K = p.K, lambda = p.lambda;
+  var stats = getBoardStats();
+  if (stats.invested === 0) return null;
+
+  var currentVal = 0;
+  for (var i = 0; i < stats.investedRanks.length; i++) currentVal += companyValue(stats.investedRanks[i], N, lambda);
+
+  var bestVal = 0; for (var r = 1; r <= K; r++) bestVal += companyValue(r, N, lambda);
+  var worstVal = 0; for (var r = N - K + 1; r <= N; r++) worstVal += companyValue(r, N, lambda);
+
+  if (bestVal <= worstVal) return 5;
+  // Piecewise: 0→0, worstVal→5, bestVal→10
+  if (currentVal <= 0) return 0;
+  if (currentVal <= worstVal) return 5 * currentVal / worstVal;
+  return 5 + 5 * (currentVal - worstVal) / (bestVal - worstVal);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DECISION — reads from board
+// ══════════════════════════════════════════════════════════════
+function computeDecision() {
+  var p = getParams(); var N = p.N, K = p.K, pMin = p.pMin, pMax = p.pMax, beta = p.beta;
+  var stats = getBoardStats();
+  var invested = stats.invested, canceled = stats.canceled, rank = stats.currentRank;
+  var remaining = Math.max(0, N - invested - canceled);
+  var picksNeeded = Math.max(0, K - invested);
+
+  // Update derived
+  var remEl = document.getElementById('derivedRemaining');
+  remEl.textContent = remaining;
+  remEl.className = 'd-value' + (remaining < picksNeeded ? ' danger' : remaining < picksNeeded * 1.5 ? ' warn' : '');
+  document.getElementById('derivedNeeded').textContent = picksNeeded;
+  document.getElementById('derivedUsed').textContent = invested + canceled;
+
+  // Portfolio score
+  var score = computePortfolioScore();
+  var scoreEl = document.getElementById('derivedScore');
+  if (score !== null) { scoreEl.textContent = score.toFixed(1); scoreEl.className = 'd-value highlight'; }
+  else { scoreEl.textContent = '\u2014'; scoreEl.className = 'd-value highlight'; }
+
+  if (picksNeeded <= 0) {
+    document.getElementById('derivedSupply').textContent = '\u2014';
+    return showDecision('neutral', { threshold: 0, slack: 0, urgency: 0 }, 'high',
+      'All investment slots are filled. Portfolio complete!', picksNeeded, remaining);
+  }
+  if (rank === null) {
+    document.getElementById('derivedSupply').textContent = '\u2014';
+    return showDecision('neutral', { threshold: 0, slack: 0, urgency: 0 }, 'high',
+      'No companies left in the queue. All meetings have been processed or are undecided (yellow).', picksNeeded, remaining);
+  }
+
+  var r = computeThreshold(N, K, remaining, picksNeeded, pMin, pMax, beta);
+  document.getElementById('derivedSupply').textContent = r.es.toFixed(1);
+
+  var accept = rank <= r.threshold;
+  var confidence, reason;
+  var slackRatio = r.slack / Math.max(picksNeeded, 1);
+
+  if (accept) {
+    if (slackRatio < 0.3) {
+      confidence = 'high';
+      reason = rank > K
+        ? 'You are running low on opportunities. With only ' + remaining + ' companies left and ' + picksNeeded + ' investments still needed, it makes sense to invest now even though rank ' + rank + ' is not in your top tier. The quality bar has widened to rank ' + r.threshold + ' to ensure you can complete your portfolio.'
+        : 'You are running low on opportunities, but this company (rank ' + rank + ') is within your top ' + K + '. Invest without hesitation \u2014 you need ' + picksNeeded + ' more from ' + remaining + ' remaining.';
+    } else if (rank <= K * 0.4) {
+      confidence = 'high';
+      reason = 'Rank ' + rank + ' is one of the best companies in your pipeline \u2014 a top-tier pick. Easy decision: invest. You also have comfortable breathing room (' + r.slack.toFixed(1) + ' extra meetings expected).';
+    } else if (rank <= r.threshold * 0.7) {
+      confidence = 'high';
+      reason = 'Rank ' + rank + ' is well within your quality bar (accepting up to rank ' + r.threshold + '). This is a strong pick with ' + r.slack.toFixed(1) + ' extra meetings of breathing room ahead.';
+    } else {
+      confidence = 'medium-high';
+      reason = 'Rank ' + rank + ' is within your quality bar (accepting up to rank ' + r.threshold + '). A solid choice worth taking. You have ' + r.slack.toFixed(1) + ' extra meetings of breathing room.';
+    }
+  } else {
+    if (rank > r.threshold * 1.5) {
+      confidence = 'high';
+      reason = 'Rank ' + rank + ' is well below your quality bar (currently accepting up to rank ' + r.threshold + '). You have plenty of breathing room (' + r.slack.toFixed(1) + ' extra meetings expected) \u2014 wait for a better company.';
+    } else if (slackRatio < 0.5) {
+      confidence = 'medium';
+      reason = 'Rank ' + rank + ' is slightly below your quality bar (rank ' + r.threshold + '). Your breathing room is moderate (' + r.slack.toFixed(1) + ' extra meetings). Pass for now, but keep a close eye on how things develop \u2014 this is a close call.';
+    } else {
+      confidence = 'high';
+      reason = 'You can afford to be selective. Rank ' + rank + ' is below your quality bar (rank ' + r.threshold + '), and you have comfortable breathing room (' + r.slack.toFixed(1) + ' extra meetings expected). Wait for a better opportunity.';
+    }
+  }
+  showDecision(accept ? 'accept' : 'reject', r, confidence, reason, picksNeeded, remaining);
+}
+
+function showDecision(mode, result, confidence, reason, picksNeeded, remaining) {
+  var box = document.getElementById('decisionBox');
+  box.className = 'decision-box ' + mode;
+  if (mode === 'accept') {
+    document.getElementById('decIcon').textContent = '\u2705';
+    document.getElementById('decTitle').textContent = 'INVEST';
+  } else if (mode === 'reject') {
+    document.getElementById('decIcon').textContent = '\u23F3';
+    document.getElementById('decTitle').textContent = 'WAIT FOR BETTER';
+  } else {
+    document.getElementById('decIcon').textContent = '\u2139\uFE0F';
+    document.getElementById('decTitle').textContent = 'NO ACTIVE MEETING';
+  }
+
+  var confEl = document.getElementById('decConf');
+  var confLabels = { 'high': 'STRONG RECOMMENDATION', 'medium-high': 'GOOD RECOMMENDATION', 'medium': 'CLOSE CALL' };
+  confEl.textContent = confLabels[confidence] || '';
+  confEl.className = 'conf-' + confidence;
+  document.getElementById('decReason').textContent = reason;
+  document.getElementById('decThresh').textContent = result.threshold > 0 ? '\u2264 ' + result.threshold : '\u2014';
+  var slackEl = document.getElementById('decSlack');
+  slackEl.textContent = result.slack !== undefined ? result.slack.toFixed(1) : '\u2014';
+  var slackRatio = result.slack / Math.max(picksNeeded, 1);
+  slackEl.className = 'value' + (slackRatio < 0.3 ? ' danger' : slackRatio < 0.8 ? ' warn' : '');
+  document.getElementById('decSlotsLeft').textContent = remaining;
+  var riskEl = document.getElementById('decRisk');
+  if (result.urgency >= 0.8) { riskEl.textContent = 'HIGH'; riskEl.className = 'value danger'; }
+  else if (result.urgency >= 0.5) { riskEl.textContent = 'MED'; riskEl.className = 'value warn'; }
+  else { riskEl.textContent = 'LOW'; riskEl.className = 'value'; }
+  document.getElementById('decAlpha').textContent = ALPHA.toFixed(2);
+  var safetyPct = Math.min(100, Math.max(0, (1 - result.urgency) * 100));
+  document.getElementById('safetyPct').textContent = safetyPct.toFixed(0) + '%';
+  var fill = document.getElementById('safetyFill');
+  fill.style.width = safetyPct + '%';
+  fill.style.background = safetyPct > 60 ? '#10B981' : safetyPct > 30 ? '#F59E0B' : '#EF4444';
+}
+
+// ══════════════════════════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════════════════════════
+function drawDropoutChart() {
+  var p = getParams(); var N = p.N, pMin = p.pMin, pMax = p.pMax, beta = p.beta;
+  var canvas = document.getElementById('dropoutChart'); var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1; var rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr);
+  var W = rect.width, H = rect.height, pad = { top: 14, right: 12, bottom: 28, left: 40 };
+  var cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom; ctx.clearRect(0, 0, W, H);
+  var xOf = function(j) { return pad.left + ((j - 1) / (N - 1)) * cw; };
+  var yOf = function(pp) { return pad.top + (1 - pp) * ch; };
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  [0, 0.25, 0.5, 0.75].forEach(function(pp) { ctx.beginPath(); ctx.moveTo(pad.left, yOf(pp)); ctx.lineTo(pad.left + cw, yOf(pp)); ctx.stroke(); });
+  ctx.fillStyle = '#8B8698'; ctx.font = '10px system-ui, sans-serif'; ctx.textAlign = 'right';
+  [0, 0.25, 0.5, 0.75].forEach(function(pp) { ctx.fillText((pp * 100) + '%', pad.left - 4, yOf(pp) + 3); });
+  ctx.textAlign = 'center';
+  [1, Math.round(N / 2), N].forEach(function(j) { ctx.fillText(j, xOf(j), H - pad.bottom + 14); });
+  ctx.fillText('position', pad.left + cw / 2, H - 2);
+  ctx.beginPath(); ctx.moveTo(xOf(1), yOf(0));
+  for (var j = 1; j <= N; j++) ctx.lineTo(xOf(j), yOf(dropProb(j, N, pMin, pMax, beta)));
+  ctx.lineTo(xOf(N), yOf(0)); ctx.closePath();
+  var g = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  g.addColorStop(0, 'rgba(239,68,68,0.2)'); g.addColorStop(1, 'rgba(239,68,68,0.01)'); ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath(); for (var j = 1; j <= N; j++) { var x = xOf(j), y = yOf(dropProb(j, N, pMin, pMax, beta)); j === 1 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+  ctx.strokeStyle = '#EF4444'; ctx.lineWidth = 2; ctx.stroke();
+  [1, N].forEach(function(j) { var pp = dropProb(j, N, pMin, pMax, beta); ctx.beginPath(); ctx.arc(xOf(j), yOf(pp), 3, 0, Math.PI * 2); ctx.fillStyle = '#EF4444'; ctx.fill(); });
+  ctx.font = 'bold 10px system-ui, sans-serif'; ctx.fillStyle = '#EF4444';
+  ctx.textAlign = 'left'; ctx.fillText((dropProb(1, N, pMin, pMax, beta) * 100).toFixed(0) + '%', xOf(1) + 6, yOf(dropProb(1, N, pMin, pMax, beta)) - 5);
+  ctx.textAlign = 'right'; ctx.fillText((dropProb(N, N, pMin, pMax, beta) * 100).toFixed(0) + '%', xOf(N) - 6, yOf(dropProb(N, N, pMin, pMax, beta)) - 5);
+}
+function drawValueChart() {
+  var p = getParams(); var N = p.N, lambda = p.lambda;
+  var canvas = document.getElementById('valueChart'); var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1; var rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr);
+  var W = rect.width, H = rect.height, pad = { top: 14, right: 12, bottom: 28, left: 40 };
+  var cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom; ctx.clearRect(0, 0, W, H);
+  var vMax = companyValue(1, N, lambda);
+  var xOf = function(r) { return pad.left + ((r - 1) / (N - 1)) * cw; };
+  var yOf = function(v) { return pad.top + (1 - v / vMax) * ch; };
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  [0, 0.25, 0.5, 0.75, 1].forEach(function(f) { ctx.beginPath(); ctx.moveTo(pad.left, yOf(f * vMax)); ctx.lineTo(pad.left + cw, yOf(f * vMax)); ctx.stroke(); });
+  ctx.fillStyle = '#8B8698'; ctx.font = '10px system-ui, sans-serif'; ctx.textAlign = 'right';
+  [0, 0.25, 0.5, 0.75, 1].forEach(function(f) { ctx.fillText((f * vMax).toFixed(0), pad.left - 4, yOf(f * vMax) + 3); });
+  ctx.textAlign = 'center';
+  [1, Math.round(N / 4), Math.round(N / 2), Math.round(N * 3 / 4), N].forEach(function(r) { ctx.fillText(r, xOf(r), H - pad.bottom + 14); });
+  ctx.fillText('rank', pad.left + cw / 2, H - 2);
+  ctx.beginPath(); ctx.moveTo(xOf(1), yOf(0));
+  for (var r = 1; r <= N; r++) ctx.lineTo(xOf(r), yOf(companyValue(r, N, lambda)));
+  ctx.lineTo(xOf(N), yOf(0)); ctx.closePath();
+  var g = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  g.addColorStop(0, 'rgba(16,185,129,0.2)'); g.addColorStop(1, 'rgba(16,185,129,0.01)'); ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath(); for (var r = 1; r <= N; r++) { var x = xOf(r), y = yOf(companyValue(r, N, lambda)); r === 1 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+  ctx.strokeStyle = '#10B981'; ctx.lineWidth = 2; ctx.stroke();
+  [1, N].forEach(function(r) { ctx.beginPath(); ctx.arc(xOf(r), yOf(companyValue(r, N, lambda)), 3, 0, Math.PI * 2); ctx.fillStyle = '#10B981'; ctx.fill(); });
+  ctx.font = 'bold 10px system-ui, sans-serif'; ctx.fillStyle = '#10B981';
+  ctx.textAlign = 'left'; ctx.fillText(companyValue(1, N, lambda).toFixed(0), xOf(1) + 6, yOf(companyValue(1, N, lambda)) - 5);
+  ctx.textAlign = 'right'; ctx.fillText(companyValue(N, N, lambda).toFixed(1), xOf(N) - 6, yOf(companyValue(N, N, lambda)) - 8);
+  ctx.font = '10px system-ui, sans-serif'; ctx.fillStyle = '#F59E0B'; ctx.textAlign = 'center';
+  ctx.fillText('#1 is ' + (companyValue(1, N, lambda) / companyValue(N, N, lambda)).toFixed(0) + '\u00D7 #' + N, pad.left + cw / 2, pad.top + 12);
+}
+function drawChartsIfOpen() {
+  var d = document.querySelector('.charts-details');
+  if (d && d.open) { drawDropoutChart(); drawValueChart(); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// MATH
+// ══════════════════════════════════════════════════════════════
+function renderMath() {
+  if (typeof katex === 'undefined') return;
+  var formulas = {
+    math1: '\\text{remaining} = N - i - c \\qquad \\text{needs} = K - i',
+    math2: 'p(j) = p_{\\min} + (p_{\\max} - p_{\\min}) \\cdot \\frac{e^{\\,\\beta\\, j/n} - 1}{e^{\\,\\beta} - 1}',
+    math3: '\\mathbb{E}[\\,m_{\\text{future}}\\,] = \\sum_{j=1}^{\\,\\text{remaining}-1} \\bigl(1 - p(j)\\bigr)',
+    math4: '\\text{slack} = \\mathbb{E}[\\,m_{\\text{future}}\\,] - (\\text{needs} - 1)',
+    math5: '\\theta = \\min\\!\\Bigl(N,\\;\\max\\!\\bigl(\\text{needs},\\;\\Bigl\\lceil \\frac{N \\cdot \\text{needs}}{\\text{needs} + \\text{slack} \\cdot \\alpha} \\Bigr\\rceil\\bigr)\\Bigr)',
+    mathVal: 'v(r) = e^{\\,\\lambda\\,(N - r)}',
+    math6: '\\alpha^* = \\underset{\\alpha \\,\\in\\, [0.2,\\, 3.0]}{\\arg\\max} \\;\\; \\mathbb{E}\\!\\left[\\sum_{r \\,\\in\\, \\text{portfolio}} v(r)\\right] \\times\\; \\Pr[\\text{complete}]',
+    math7: '\\text{Accept company with rank } r \\iff r \\leq \\theta'
+  };
+  var ids = Object.keys(formulas);
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) try { katex.render(formulas[ids[i]], el, { displayMode: true, throwOnError: false }); } catch (e) { el.textContent = formulas[ids[i]]; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// COLLAPSIBLES
+// ══════════════════════════════════════════════════════════════
+function setupCollapsibles() {
+  var mathD = document.querySelector('.math-details');
+  if (mathD) mathD.addEventListener('toggle', function() {
+    var h = mathD.querySelector('.toggle-hint'); if (h) h.textContent = mathD.open ? 'Hide formulas' : 'Show formulas';
+    if (mathD.open) renderMath();
+  });
+  var introD = document.querySelector('.intro-details');
+  if (introD) introD.addEventListener('toggle', function() {
+    var h = introD.querySelector('.intro-toggle-hint'); if (h) h.textContent = introD.open ? 'Hide' : 'Show explanation';
+  });
+  var chartsD = document.querySelector('.charts-details');
+  if (chartsD) chartsD.addEventListener('toggle', function() {
+    var h = chartsD.querySelector('.charts-toggle-hint'); if (h) h.textContent = chartsD.open ? 'Hide settings' : 'Show settings';
+    if (chartsD.open) { drawDropoutChart(); drawValueChart(); }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PARAMETER CHANGES
+// ══════════════════════════════════════════════════════════════
+function onParamsChanged() {
+  document.getElementById('pMinLabel').textContent = 'Early dropout chance: ' + (+document.getElementById('paramPMin').value * 100).toFixed(0) + '%';
+  document.getElementById('pMaxLabel').textContent = 'Late dropout chance: ' + (+document.getElementById('paramPMax').value * 100).toFixed(0) + '%';
+  document.getElementById('betaLabel').textContent = 'Dropout acceleration: ' + (+document.getElementById('paramBeta').value).toFixed(1);
+  document.getElementById('lambdaLabel').textContent = 'Quality premium: ' + (+document.getElementById('paramLambda').value).toFixed(2);
+  var N = getParams().N;
+  resizeBoard(N);
+  renderBoard();
+  drawChartsIfOpen();
+  saveState();
+  if (calibrationTimer) clearTimeout(calibrationTimer);
+  calibrationTimer = setTimeout(function() { calibrateAlpha(); }, 300);
+  computeDecision();
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  // Load saved state or init fresh
+  if (!loadState()) { initBoard(getParams().N); }
+
+  // Wire params
+  ['paramN', 'paramK', 'paramPMin', 'paramPMax', 'paramBeta', 'paramLambda'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', onParamsChanged);
+  });
+
+  // Reset button
+  document.getElementById('resetBoard').addEventListener('click', resetBoard);
+
+  // Collapsibles
+  setupCollapsibles();
+
+  // Resize
+  window.addEventListener('resize', drawChartsIfOpen);
+
+  // Render board and compute
+  renderBoard();
+  calibrateAlpha();
+});
+</script>
