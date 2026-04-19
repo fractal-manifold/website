@@ -1,0 +1,237 @@
+---
+import Layout from './Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  heading: string;
+  lang: 'en' | 'es';
+  alternateHref: string;
+  alternateLabel: string;
+  lastUpdated: string;
+}
+
+const { title, description, heading, lang, alternateHref, alternateLabel, lastUpdated } = Astro.props;
+
+const labels = lang === 'es'
+  ? { backHome: 'Volver al inicio', lastUpdatedPrefix: 'Última actualización', langNavLabel: 'Idioma' }
+  : { backHome: 'Back to Home', lastUpdatedPrefix: 'Last updated', langNavLabel: 'Language' };
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://fractalmanifold.com";
+const currentUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const alternateUrl = new URL(alternateHref, siteUrl).toString();
+
+const englishUrl = lang === 'en' ? currentUrl : alternateUrl;
+const alternateLocales = [
+  { hreflang: 'en', href: lang === 'en' ? currentUrl : alternateUrl },
+  { hreflang: 'es', href: lang === 'es' ? currentUrl : alternateUrl },
+  { hreflang: 'x-default', href: englishUrl },
+];
+---
+
+<Layout title={title} description={description} lang={lang} alternateLocales={alternateLocales}>
+  <Header />
+
+  <main id="main-content">
+    <section class="legal-page">
+      <div class="legal-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+      <div class="container">
+        <div class="legal-content">
+          <nav class="legal-lang" aria-label={labels.langNavLabel}>
+            <a href={alternateHref}>{alternateLabel}</a>
+            <span aria-hidden="true">·</span>
+            <span aria-current="page">{lang === 'es' ? 'Español' : 'English'}</span>
+          </nav>
+
+          <h1 class="legal-title">
+            <span class="gradient-text">{heading}</span>
+          </h1>
+
+          <slot />
+
+          <div class="legal-footer">
+            <p>{labels.lastUpdatedPrefix}: {lastUpdated}</p>
+          </div>
+
+          <div class="back-home">
+            <a href="/" class="btn btn-primary">{labels.backHome}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    padding-top: 80px;
+  }
+
+  .legal-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 4rem 0;
+    overflow: hidden;
+  }
+
+  .legal-background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.2;
+  }
+
+  .orb-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    top: 5%;
+    right: 10%;
+  }
+
+  .orb-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--color-purple), transparent);
+    bottom: 10%;
+    left: -5%;
+  }
+
+  .legal-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .legal-lang {
+    text-align: right;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .legal-lang a {
+    color: var(--color-text-muted);
+  }
+
+  .legal-lang a:hover {
+    color: var(--color-gold);
+  }
+
+  .legal-lang [aria-current="page"] {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .legal-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  .legal-footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(243, 158, 11, 0.1);
+  }
+
+  .legal-footer p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .back-home {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  /* Styles for legal content (applied via :global because slotted from children) */
+  :global(.legal-section) {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: rgba(26, 26, 26, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(243, 158, 11, 0.1);
+  }
+
+  :global(.legal-section h2) {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--color-gold);
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  :global(.legal-section p) {
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  :global(.legal-section p:last-child) {
+    margin-bottom: 0;
+  }
+
+  :global(.legal-section ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  :global(.legal-section li) {
+    color: var(--color-text-secondary);
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  :global(.legal-section li::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1rem;
+    width: 6px;
+    height: 6px;
+    background: var(--color-gold);
+    border-radius: 50%;
+  }
+
+  :global(.legal-section a) {
+    color: var(--color-gold);
+    transition: color 0.3s ease;
+  }
+
+  :global(.legal-section a:hover) {
+    color: var(--color-gold-light);
+  }
+
+  :global(.legal-section .todo) {
+    color: var(--color-purple-light);
+    font-style: italic;
+    font-size: 0.95em;
+  }
+
+  @media (max-width: 768px) {
+    :global(.legal-section) {
+      padding: 1.25rem;
+    }
+  }
+</style>

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /investment-model
+
+Sitemap: https://fractalmanifold.com/sitemap-index.xml

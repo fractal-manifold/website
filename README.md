@@ -22,12 +22,14 @@ A modern, performant static website built with Astro, featuring a striking black
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Astro](https://astro.build) 5.0.3
+- **Framework**: [Astro](https://astro.build) 4.16
 - **Language**: TypeScript (strict mode)
-- **Styling**: Scoped CSS with CSS Variables
-- **Fonts**: Bruno Ace (Google Fonts)
+- **Styling**: Scoped CSS with CSS variables (brand gradient as `--gradient-brand`)
+- **Fonts**: Bruno Ace, self-hosted via [`@fontsource/bruno-ace`](https://fontsource.org/fonts/bruno-ace)
+- **Math rendering**: [KaTeX](https://katex.org) at build time, self-hosted CSS + fonts
+- **Sitemap**: `@astrojs/sitemap` (pinned to 3.2.1 for Astro 4 compat)
 - **Deployment**: GitHub Pages via GitHub Actions
-- **Package Manager**: npm
+- **Package manager**: npm
 
 ## 🚀 Getting Started
 
@@ -74,24 +76,37 @@ npm run preview
 fractalmanifold_website/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # GitHub Actions deployment
+│       └── deploy.yml                    # GitHub Actions deployment
 ├── public/
-│   ├── logo.png                # Company logo
-│   ├── favicon.ico             # Favicons (multiple formats)
-│   └── CNAME                   # Custom domain configuration
+│   ├── logo.png                          # Company logo
+│   ├── favicon.ico                       # Favicons
+│   ├── robots.txt                        # Crawler rules (excludes /investment-model)
+│   ├── katex/                            # Self-hosted KaTeX CSS + fonts
+│   └── CNAME                             # Custom domain configuration
 ├── src/
 │   ├── components/
-│   │   ├── Header.astro        # Site header with navigation
-│   │   └── Footer.astro        # Site footer
+│   │   ├── Header.astro                  # Site header (lang-aware nav)
+│   │   ├── Footer.astro                  # Site footer (lang-aware links)
+│   │   └── sections/
+│   │       ├── HeroSection.astro         # Hero with animated equations
+│   │       ├── ResearchSection.astro     # Research grid
+│   │       ├── FoundersSection.astro     # Alternating list layout
+│   │       └── ContactSection.astro      # Contact block
 │   ├── layouts/
-│   │   └── Layout.astro        # Base layout with global styles
+│   │   ├── Layout.astro                  # Base (OG, Schema, hreflang, skip link)
+│   │   └── LegalLayout.astro             # Shared chrome for legal pages
 │   └── pages/
-│       ├── index.astro         # Homepage
-│       └── 404.astro           # Custom error page
-├── astro.config.mjs            # Astro configuration
-├── tsconfig.json               # TypeScript configuration
-├── package.json                # Dependencies and scripts
-└── README.md                   # This file
+│       ├── index.astro                   # Homepage
+│       ├── 404.astro                     # Custom error page
+│       ├── legal-notice.astro            # LSSI-CE legal notice (EN)
+│       ├── aviso-legal.astro             # LSSI-CE legal notice (ES)
+│       ├── privacy-policy.astro          # GDPR privacy policy (EN)
+│       ├── politica-privacidad.astro     # RGPD privacy policy (ES)
+│       └── investment-model.astro        # Internal prototype (noindex, hidden)
+├── astro.config.mjs                      # Astro + sitemap integration
+├── tsconfig.json                         # TypeScript configuration
+├── package.json                          # Dependencies and scripts
+└── README.md                             # This file
 ```
 
 ## 🎨 Design System

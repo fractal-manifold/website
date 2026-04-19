@@ -1,18 +1,58 @@
 ---
+import '@fontsource/bruno-ace/index.css';
+
+interface AlternateLocale {
+  hreflang: string;
+  href: string;
+}
+
 interface Props {
   title: string;
   description?: string;
+  lang?: 'en' | 'es';
+  alternateLocales?: AlternateLocale[];
+  noindex?: boolean;
 }
 
-const { title, description = "Fractal Manifold - Startup Investment and Artificial Intelligence Research" } = Astro.props;
+const {
+  title,
+  description = "Fractal Manifold — a research-focused lab working at the intersection of mathematics and deep learning.",
+  lang = 'en',
+  alternateLocales,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://fractalmanifold.com";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const ogImage = `${siteUrl}/logo.png`;
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Fractal Manifold",
+  url: siteUrl,
+  logo: ogImage,
+  email: "contact@fractalmanifold.com",
+  description,
+};
+
+const skipLinkLabel = lang === 'es' ? 'Saltar al contenido principal' : 'Skip to main content';
+const ogLocale = lang === 'es' ? 'es_ES' : 'en_US';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonicalUrl} />
+
+    {alternateLocales?.map((loc) => (
+      <link rel="alternate" hreflang={loc.hreflang} href={loc.href} />
+    ))}
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -22,15 +62,25 @@ const { title, description = "Fractal Manifold - Startup Investment and Artifici
 
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap" rel="stylesheet" />
+    <!-- OpenGraph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fractal Manifold" />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
     <slot name="head" />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">{skipLinkLabel}</a>
     <slot />
   </body>
 </html>
@@ -47,6 +97,8 @@ const { title, description = "Fractal Manifold - Startup Investment and Artifici
     --color-text-secondary: #D1D5DB;
     --color-text-muted: #9CA3AF;
     --font-display: 'Bruno Ace', system-ui, sans-serif;
+    --gradient-brand: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    --gradient-brand-horizontal: linear-gradient(90deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
   }
 
   * {
@@ -85,15 +137,148 @@ const { title, description = "Fractal Manifold - Startup Investment and Artifici
     color: var(--color-gold-light);
   }
 
+  /* Skip-to-content link (visible only on keyboard focus) */
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 1rem;
+    z-index: 10000;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-bg);
+    color: var(--color-gold-light);
+    border: 2px solid var(--color-gold);
+    border-radius: 8px;
+    font-weight: 600;
+    transition: top 0.2s ease;
+  }
+
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  /* Keyboard focus visibility */
+  :focus-visible {
+    outline: 2px solid var(--color-gold-light);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Prevent fixed header from covering section anchors */
+  section[id] {
+    scroll-margin-top: 100px;
+  }
+
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
   }
 
+  /* Shared section layout */
+  .section {
+    padding: 6rem 0;
+  }
+
+  .section-header {
+    margin-bottom: 4rem;
+  }
+
+  .section-header.centered {
+    text-align: center;
+  }
+
+  .section-header h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    margin-bottom: 1rem;
+  }
+
+  .section-line {
+    height: 3px;
+    width: 100px;
+    background: var(--gradient-brand-horizontal);
+    border-radius: 2px;
+  }
+
+  .section-line.centered {
+    margin: 0 auto;
+  }
+
+  .lead {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.8;
+  }
+
+  .gradient-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+  }
+
+  /* Shared buttons */
+  .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: transparent;
+    color: var(--color-gold-light);
+    border: 2px solid var(--color-gold);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-purple-light);
+    border: 2px solid var(--color-purple);
+  }
+
+  @media (hover: hover) {
+    .btn-primary:hover {
+      background: var(--color-gold);
+      color: var(--color-bg);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.25);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-purple);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(147, 51, 234, 0.25);
+    }
+  }
+
   @media (max-width: 768px) {
     .container {
       padding: 0 1rem;
+    }
+
+    section[id] {
+      scroll-margin-top: 80px;
+    }
+
+    .section {
+      padding: 4rem 0;
+    }
+
+    .section-header {
+      margin-bottom: 3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .section {
+      padding: 3rem 0;
     }
   }
 </style>

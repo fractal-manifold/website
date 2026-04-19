@@ -1,0 +1,341 @@
+---
+import katex from 'katex';
+
+type EqSpec = {
+  tex: string;
+  top?: string;
+  left?: string;
+  right?: string;
+  bottom?: string;
+  size: string;
+  tint: 'white' | 'gold' | 'purple';
+  delay: number;
+  duration: number;
+};
+
+const gdlEquations: EqSpec[] = [
+  // Top band
+  { tex: String.raw`f(\rho(g)\,x) = \rho'(g)\,f(x)`, top: '6%', left: '3%', size: '1.1rem', tint: 'white', delay: -2, duration: 22 },
+  { tex: String.raw`\hat{x} = U^\top x`, top: '4%', left: '26%', size: '1rem', tint: 'gold', delay: -11, duration: 24 },
+  { tex: String.raw`L = U\Lambda U^\top`, top: '8%', left: '46%', size: '1.05rem', tint: 'purple', delay: -5, duration: 20 },
+  { tex: String.raw`[X,Y] = XY - YX`, top: '3%', right: '28%', size: '1rem', tint: 'white', delay: -13, duration: 26 },
+  { tex: String.raw`H^{(l+1)} = \sigma\!\left(\tilde{D}^{-\frac{1}{2}} \tilde{A}\, \tilde{D}^{-\frac{1}{2}} H^{(l)} W^{(l)}\right)`, top: '12%', right: '2%', size: '1.25rem', tint: 'gold', delay: -7, duration: 28 },
+
+  // Upper-mid band (avoid center where h1 sits)
+  { tex: String.raw`L = D - A`, top: '24%', left: '4%', size: '1.4rem', tint: 'white', delay: -4, duration: 18 },
+  { tex: String.raw`\exp_p : T_p\mathcal{M} \to \mathcal{M}`, top: '22%', left: '22%', size: '1rem', tint: 'purple', delay: -9, duration: 23 },
+  { tex: String.raw`\mathrm{Attn}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V`, top: '26%', right: '4%', size: '1.15rem', tint: 'purple', delay: -14, duration: 25 },
+  { tex: String.raw`\nabla_X Y = \partial_X Y + \Gamma(X,Y)`, top: '30%', right: '26%', size: '1rem', tint: 'white', delay: -6, duration: 21 },
+
+  // Mid band (narrow edges only, keep subtitle+CTA clear)
+  { tex: String.raw`ds^2 = g_{ij}(x)\,dx^i\, dx^j`, top: '48%', left: '3%', size: '1.15rem', tint: 'gold', delay: -10, duration: 27 },
+  { tex: String.raw`\frac{\partial u}{\partial t} = \Delta_{\mathcal{M}}\, u`, top: '50%', right: '3%', size: '1.2rem', tint: 'white', delay: -3, duration: 19 },
+
+  // Lower-mid band
+  { tex: String.raw`\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k\in\mathcal{N}_i} \exp(e_{ik})}`, top: '66%', left: '4%', size: '1.1rem', tint: 'purple', delay: -15, duration: 26 },
+  { tex: String.raw`\ddot{x}^k + \Gamma^k_{ij}\dot{x}^i\dot{x}^j = 0`, top: '70%', left: '28%', size: '1.05rem', tint: 'white', delay: -8, duration: 22 },
+  { tex: String.raw`k_t(x,y) = \sum_i e^{-\lambda_i t}\varphi_i(x)\varphi_i(y)`, top: '68%', right: '5%', size: '1.1rem', tint: 'gold', delay: -12, duration: 29 },
+  { tex: String.raw`\Phi(R\mathbf{x}+\mathbf{t}) = R\,\Phi(\mathbf{x})`, top: '72%', right: '28%', size: '1rem', tint: 'purple', delay: -1, duration: 24 },
+
+  // Bottom band
+  { tex: String.raw`h_v^{(l+1)} = \phi\!\left(h_v^{(l)},\, \bigoplus_{u \in \mathcal{N}(v)} \psi(h_u^{(l)}, h_v^{(l)}, e_{uv})\right)`, bottom: '8%', left: '2%', size: '1.15rem', tint: 'gold', delay: -11, duration: 28 },
+  { tex: String.raw`g_\theta(L) = \sum_{k=0}^{K} \theta_k\, T_k(\tilde{L})`, bottom: '6%', left: '32%', size: '1.1rem', tint: 'white', delay: -17, duration: 25 },
+  { tex: String.raw`(f \star \psi)(g) = \int_{G} f(h)\,\psi(g^{-1}h)\,d\mu(h)`, bottom: '10%', right: '4%', size: '1.15rem', tint: 'purple', delay: -16, duration: 27 },
+  { tex: String.raw`c_v^{(l+1)} = \mathrm{HASH}\!\left(c_v^{(l)}, \{\!\{c_u^{(l)}\}\!\}_{u\in\mathcal{N}(v)}\right)`, bottom: '20%', right: '26%', size: '1rem', tint: 'gold', delay: -6, duration: 23 },
+  { tex: String.raw`dx_t = \nabla\!\log p(x_t)\,dt + \sqrt{2}\,dW_t`, bottom: '22%', left: '22%', size: '1.05rem', tint: 'white', delay: -13, duration: 26 },
+  { tex: String.raw`p_X(x) = p_Z(f^{-1}(x))\,\bigl|\det \tfrac{\partial f^{-1}}{\partial x}\bigr|`, bottom: '34%', left: '6%', size: '1rem', tint: 'purple', delay: -18, duration: 30 },
+  { tex: String.raw`\mathcal{L} = \mathbb{E}_q[\log p(x\mid z)] - \mathrm{KL}(q\|p)`, bottom: '36%', right: '8%', size: '1.05rem', tint: 'gold', delay: -2, duration: 24 },
+];
+
+const renderedEquations = gdlEquations.map((spec) => ({
+  html: katex.renderToString(spec.tex, { throwOnError: false, displayMode: false, output: 'html' }),
+  spec,
+}));
+---
+
+<section class="hero">
+  <div class="hero-background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+    <div class="gradient-orb orb-4"></div>
+    <div class="gradient-orb orb-5"></div>
+    <div class="logo-watermark"></div>
+    <div class="equations-layer" aria-hidden="true">
+      {renderedEquations.map(({ html, spec }, i) => {
+        const pos = [
+          spec.top !== undefined ? `top:${spec.top}` : null,
+          spec.bottom !== undefined ? `bottom:${spec.bottom}` : null,
+          spec.left !== undefined ? `left:${spec.left}` : null,
+          spec.right !== undefined ? `right:${spec.right}` : null,
+          `font-size:${spec.size}`,
+          `animation-delay:${spec.delay}s`,
+          `animation-duration:${spec.duration}s`,
+        ].filter(Boolean).join(';');
+        return <div class={`equation tint-${spec.tint}`} style={pos} data-i={i} set:html={html} />;
+      })}
+    </div>
+  </div>
+  <div class="container">
+    <div class="hero-content">
+      <h1>
+        <span class="gradient-text">Fractal Manifold</span>
+      </h1>
+      <p class="hero-subtitle">Mathematical Deep Learning Research</p>
+      <div class="hero-cta">
+        <a href="#research" class="btn btn-primary">Research</a>
+        <a href="#startups" class="btn btn-secondary">Founders</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .hero-background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.4;
+    will-change: transform;
+  }
+
+  .orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    top: -15%;
+    right: 5%;
+    animation: float-main 12s ease-in-out infinite;
+  }
+
+  .orb-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, var(--color-purple), transparent);
+    bottom: -20%;
+    left: -10%;
+    animation: float-main 15s ease-in-out infinite reverse;
+  }
+
+  .orb-3 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--color-gold-light), transparent);
+    top: 20%;
+    left: 15%;
+    opacity: 0.3;
+    animation: float-secondary 10s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+
+  .orb-4 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, var(--color-purple-light), transparent);
+    top: 20%;
+    right: 25%;
+    opacity: 0.35;
+    animation: float-secondary 13s ease-in-out infinite reverse;
+    animation-delay: -6s;
+  }
+
+  .orb-5 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, var(--color-gold), transparent);
+    bottom: 10%;
+    right: 10%;
+    opacity: 0.25;
+    animation: float-secondary 9s ease-in-out infinite;
+    animation-delay: -2s;
+  }
+
+  @keyframes float-main {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(40px, -30px) scale(1.2); }
+    50% { transform: translate(-30px, 40px) scale(0.8); }
+    75% { transform: translate(25px, 20px) scale(1.15); }
+  }
+
+  @keyframes float-secondary {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(25px, -20px) scale(1.25); }
+    66% { transform: translate(-20px, 25px) scale(0.85); }
+  }
+
+  .equations-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .equation {
+    position: absolute;
+    white-space: nowrap;
+    will-change: transform, opacity;
+    animation: eq-drift 22s ease-in-out infinite;
+  }
+
+  .equation :global(.katex) {
+    font-size: inherit;
+    color: inherit;
+  }
+
+  .tint-white  { color: rgba(255, 255, 255, 0.13); }
+  .tint-gold   { color: rgba(245, 158, 11, 0.16); }
+  .tint-purple { color: rgba(168, 85, 247, 0.18); }
+
+  @keyframes eq-drift {
+    0%, 100% { transform: translate(0, 0); opacity: 0.9; }
+    25% { transform: translate(12px, -8px); opacity: 1; }
+    50% { transform: translate(-8px, 10px); opacity: 0.65; }
+    75% { transform: translate(10px, 6px); opacity: 0.95; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-orb,
+    .equation {
+      animation: none;
+    }
+  }
+
+  .logo-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background-image: url('/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.1;
+    pointer-events: none;
+    filter: grayscale(100%);
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 8vw, 6rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--color-text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 900px) {
+    /* Thin out equations on smaller viewports to avoid clutter */
+    .equation[data-i="2"],
+    .equation[data-i="3"],
+    .equation[data-i="6"],
+    .equation[data-i="8"],
+    .equation[data-i="12"],
+    .equation[data-i="13"],
+    .equation[data-i="15"],
+    .equation[data-i="17"],
+    .equation[data-i="19"],
+    .equation[data-i="20"],
+    .equation[data-i="21"] {
+      display: none;
+    }
+    .equation { font-size: 0.85rem !important; }
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      min-height: 85vh;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      letter-spacing: 1px;
+    }
+
+    .orb-1 {
+      width: 350px;
+      height: 350px;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+    }
+
+    .orb-3, .orb-4, .orb-5 {
+      display: none;
+    }
+
+    .logo-watermark {
+      width: 500px;
+      height: 500px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero {
+      min-height: 80vh;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 12vw, 3rem);
+      white-space: normal;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      margin-bottom: 2rem;
+    }
+
+    .orb-1 {
+      width: 250px;
+      height: 250px;
+    }
+
+    .orb-2 {
+      width: 300px;
+      height: 300px;
+    }
+
+    .logo-watermark {
+      width: 350px;
+      height: 350px;
+    }
+  }
+</style>

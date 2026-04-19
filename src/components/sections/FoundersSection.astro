@@ -1,0 +1,145 @@
+---
+---
+
+<section id="startups" class="section founders-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Founder Acceleration</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="lead">
+      We partner with high-potential founders to unlock the full power of artificial intelligence in their ventures.
+      Our deep technical expertise helps transform ambitious ideas into AI-driven success.
+    </p>
+
+    <div class="founders-list">
+      <article class="founder-row">
+        <div class="founder-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+        </div>
+        <div class="founder-text">
+          <h3>AI Strategy</h3>
+          <p>Identifying where AI can create the most value in your business.</p>
+        </div>
+      </article>
+
+      <article class="founder-row">
+        <div class="founder-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+          </svg>
+        </div>
+        <div class="founder-text">
+          <h3>Technical Partnership</h3>
+          <p>Hands-on support from research to production-ready solutions.</p>
+        </div>
+      </article>
+
+      <article class="founder-row">
+        <div class="founder-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+            <polyline points="16 7 22 7 22 13" />
+          </svg>
+        </div>
+        <div class="founder-text">
+          <h3>Growth Acceleration</h3>
+          <p>Leveraging cutting-edge AI to scale faster and smarter.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .founders-list {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .founder-row {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding: 3rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .founder-row:last-child {
+    border-bottom: none;
+  }
+
+  .founder-row:nth-child(even) {
+    flex-direction: row-reverse;
+  }
+
+  .founder-icon {
+    flex: 0 0 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    background: var(--color-bg-secondary);
+    border: 1px solid rgba(243, 158, 11, 0.15);
+    color: var(--color-gold);
+    transition: color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .founder-row:nth-child(even) .founder-icon {
+    color: var(--color-purple-light);
+    border-color: rgba(168, 85, 247, 0.25);
+  }
+
+  @media (hover: hover) {
+    .founder-row:hover .founder-icon {
+      transform: translateY(-4px);
+    }
+  }
+
+  .founder-icon svg {
+    width: 70px;
+    height: 70px;
+  }
+
+  .founder-text {
+    flex: 1;
+  }
+
+  .founder-text h3 {
+    font-size: clamp(1.5rem, 2.5vw, 1.8rem);
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .founder-text p {
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 768px) {
+    .founder-row,
+    .founder-row:nth-child(even) {
+      flex-direction: column;
+      text-align: center;
+      gap: 1.5rem;
+      padding: 2.5rem 0;
+    }
+
+    .founder-icon {
+      flex: 0 0 120px;
+      height: 120px;
+    }
+
+    .founder-icon svg {
+      width: 54px;
+      height: 54px;
+    }
+  }
+</style>

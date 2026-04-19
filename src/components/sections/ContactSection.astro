@@ -1,0 +1,71 @@
+---
+---
+
+<section id="contact" class="section contact-section">
+  <div class="container">
+    <div class="section-header centered">
+      <h2>Contact</h2>
+      <div class="section-line centered"></div>
+    </div>
+    <div class="contact-content">
+      <p class="contact-text">
+        Have an innovative startup or research idea? We'd love to hear about your project.
+      </p>
+      <a href="mailto:contact@fractalmanifold.com" class="contact-email">
+        contact@fractalmanifold.com
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-section {
+    padding: 8rem 0;
+  }
+
+  .contact-content {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .contact-text {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 2.5rem;
+  }
+
+  .contact-email {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-gold);
+    padding: 1.5rem 3rem;
+    border: 2px solid var(--color-gold);
+    border-radius: 12px;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  @media (hover: hover) {
+    .contact-email:hover {
+      background: var(--color-gold);
+      color: var(--color-bg);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .contact-section {
+      padding: 5rem 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .contact-email {
+      font-size: 1rem;
+      padding: 1rem 1.5rem;
+      word-break: break-all;
+    }
+  }
+</style>

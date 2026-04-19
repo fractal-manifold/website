@@ -1,0 +1,119 @@
+---
+---
+
+<section id="research" class="section research-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>AI Research</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="lead">
+      Deep learning has achieved remarkable results, but current architectures are hitting fundamental limits.
+      We believe the path forward lies in mathematics—specifically in understanding the geometric structure of data
+      and the symmetries that govern learning.
+    </p>
+    <p class="lead">
+      Fractal Manifold is a research lab focused on advancing deep learning through rigorous mathematical foundations.
+      We work at the intersection of differential geometry, group theory, and neural network design to build models
+      that are not just bigger, but fundamentally better.
+    </p>
+
+    <div class="features">
+      <article class="feature">
+        <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" />
+          <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
+        </svg>
+        <div class="feature-content">
+          <h3>Advanced Deep Learning</h3>
+          <p>Developing next-generation neural architectures</p>
+        </div>
+      </article>
+
+      <article class="feature">
+        <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="1" />
+          <path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5z" />
+          <path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5z" />
+        </svg>
+        <div class="feature-content">
+          <h3>Fundamental Research</h3>
+          <p>Exploring the theoretical foundations of artificial intelligence</p>
+        </div>
+      </article>
+
+      <article class="feature">
+        <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+        <div class="feature-content">
+          <h3>Practical Applications</h3>
+          <p>Transferring research insights into real-world solutions</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .feature {
+    padding: 2rem;
+    background: var(--color-bg-secondary);
+    border-radius: 16px;
+    border: 1px solid rgba(243, 158, 11, 0.1);
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (hover: hover) {
+    .feature:hover {
+      transform: translateY(-5px);
+      border-color: rgba(243, 158, 11, 0.35);
+      box-shadow: 0 10px 40px rgba(243, 158, 11, 0.08);
+    }
+  }
+
+  .bg-icon {
+    position: absolute;
+    width: 8rem;
+    height: 8rem;
+    opacity: 0.18;
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    user-select: none;
+    color: var(--color-gold);
+  }
+
+  .feature-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .feature p {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

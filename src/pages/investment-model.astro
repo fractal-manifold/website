@@ -4,7 +4,11 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="Investment Decision Tool | Fractal Manifold" description="A data-driven tool to help decide whether to invest in a company now or wait for a better opportunity.">
+<Layout
+  title="Investment Decision Tool | Fractal Manifold"
+  description="A data-driven tool to help decide whether to invest in a company now or wait for a better opportunity."
+  noindex={true}
+>
   <Fragment slot="head">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
     <script is:inline src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>

@@ -1,21 +1,25 @@
 ---
+const path = Astro.url.pathname;
+const isSpanish = path.startsWith('/aviso-legal') || path.startsWith('/politica-privacidad');
+
+const labels = isSpanish
+  ? { legal: 'Aviso Legal', privacy: 'Política de Privacidad', rights: 'Todos los derechos reservados.' }
+  : { legal: 'Legal Notice', privacy: 'Privacy Policy', rights: 'All rights reserved.' };
+
+const legalHref = isSpanish ? '/aviso-legal' : '/legal-notice';
+const privacyHref = isSpanish ? '/politica-privacidad' : '/privacy-policy';
 ---
 
 <footer>
   <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <h3>Fractal Manifold</h3>
-        <p>Investment & AI Innovation</p>
-      </div>
-      <div class="footer-contact">
-        <a href="mailto:contact@fractalmanifold.com" class="email">
-          contact@fractalmanifold.com
-        </a>
-      </div>
-    </div>
     <div class="footer-bottom">
-      <p>&copy; {new Date().getFullYear()} Fractal Manifold. All rights reserved. · <a href="/legal-notice">Legal Notice</a></p>
+      <p>
+        &copy; {new Date().getFullYear()} <span class="brand">Fractal Manifold</span>. {labels.rights}
+        <span class="sep" aria-hidden="true">·</span>
+        <a href={legalHref}>{labels.legal}</a>
+        <span class="sep" aria-hidden="true">·</span>
+        <a href={privacyHref}>{labels.privacy}</a>
+      </p>
     </div>
   </div>
 </footer>
@@ -25,44 +29,6 @@
     background: var(--color-bg-secondary);
     border-top: 1px solid rgba(243, 158, 11, 0.1);
     margin-top: 5rem;
-  }
-
-  .footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 3rem 0;
-    border-bottom: 1px solid rgba(243, 158, 11, 0.05);
-  }
-
-  .footer-brand h3 {
-    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .footer-brand p {
-    color: var(--color-text-muted);
-  }
-
-  .email {
-    color: var(--color-gold);
-    font-size: 1.1rem;
-    font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid var(--color-gold);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .email:hover {
-    background: var(--color-gold);
-    color: var(--color-bg);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
   }
 
   .footer-bottom {
@@ -75,6 +41,20 @@
     font-size: 0.9rem;
   }
 
+  .brand {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 500;
+  }
+
+  .sep {
+    margin: 0 0.5rem;
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+
   .footer-bottom a {
     color: var(--color-text-muted);
     transition: color 0.3s ease;
@@ -82,13 +62,5 @@
 
   .footer-bottom a:hover {
     color: var(--color-gold);
-  }
-
-  @media (max-width: 768px) {
-    .footer-content {
-      flex-direction: column;
-      gap: 2rem;
-      text-align: center;
-    }
   }
 </style>

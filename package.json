@@ -10,7 +10,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.16.18"
+    "@astrojs/sitemap": "3.2.1",
+    "@fontsource/bruno-ace": "^5.2.8",
+    "astro": "^4.16.18",
+    "katex": "^0.16.45"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",

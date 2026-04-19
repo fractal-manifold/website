@@ -1,17 +1,22 @@
 ---
+const path = Astro.url.pathname;
+const isHome = path === '/' || path === '';
+const prefix = isHome ? '' : '/';
+const isSpanish = path.startsWith('/aviso-legal') || path.startsWith('/politica-privacidad');
+const navLabel = isSpanish ? 'Principal' : 'Main';
 ---
 
 <header>
   <div class="container">
-    <nav>
+    <nav aria-label={navLabel}>
       <a href="/" class="logo">
         <img src="/logo.png" alt="Fractal Manifold" class="logo-img" />
         <span class="logo-text">Fractal Manifold</span>
       </a>
       <div class="nav-links">
-        <a href="#research">Research</a>
-        <a href="#startups">Investments</a>
-        <a href="#contact">Contact</a>
+        <a href={`${prefix}#research`}>Research</a>
+        <a href={`${prefix}#startups`}>Founders</a>
+        <a href={`${prefix}#contact`}>Contact</a>
       </div>
     </nav>
   </div>
@@ -59,7 +64,8 @@
     font-size: 1.3rem;
     font-weight: 400;
     letter-spacing: 1px;
-    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    color: var(--color-gold);
+    background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -86,16 +92,18 @@
     left: 0;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--color-gold) 0%, var(--color-gold) 30%, var(--color-purple) 70%, var(--color-purple) 100%);
+    background: var(--gradient-brand-horizontal);
     transition: width 0.3s ease;
   }
 
-  .nav-links a:hover {
-    color: var(--color-text);
-  }
+  @media (hover: hover) {
+    .nav-links a:hover {
+      color: var(--color-text);
+    }
 
-  .nav-links a:hover::after {
-    width: 100%;
+    .nav-links a:hover::after {
+      width: 100%;
+    }
   }
 
   @media (max-width: 768px) {
