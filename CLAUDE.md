@@ -29,7 +29,6 @@ npm run preview    # Preview production build locally
   - `index.astro` — homepage (composition only)
   - `legal-notice.astro` / `aviso-legal.astro` — LSSI-CE legal notice (EN/ES)
   - `privacy-policy.astro` / `politica-privacidad.astro` — GDPR/LOPDGDD privacy policy (EN/ES)
-  - `investment-model.astro` — internal prototype, `noindex` and excluded from robots/sitemap
   - `404.astro` — custom error page
 - **`src/layouts/`**
   - `Layout.astro` — base layout: global styles, OG/Twitter, Schema.org Organization, canonical, hreflang, skip link, referrer policy
@@ -118,9 +117,9 @@ linear-gradient(135deg,
 - OpenGraph + Twitter cards on every page via `Layout.astro`.
 - `Organization` Schema.org JSON-LD in every page `<head>`.
 - Canonical URL derived from `Astro.url.pathname`.
-- Sitemap via `@astrojs/sitemap` at `/sitemap-index.xml`; `/investment-model` excluded via filter.
-- `robots.txt` at `public/robots.txt` — also disallows `/investment-model`.
-- `noindex` prop on `Layout` sets `<meta name="robots">` to `noindex, nofollow` (used by `404` and `investment-model`).
+- Sitemap via `@astrojs/sitemap` at `/sitemap-index.xml`.
+- `robots.txt` at `public/robots.txt`.
+- `noindex` prop on `Layout` sets `<meta name="robots">` to `noindex, nofollow` (used by `404`).
 
 ## Deployment (GitHub Pages)
 

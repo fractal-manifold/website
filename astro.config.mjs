@@ -6,8 +6,6 @@ export default defineConfig({
   site: 'https://fractalmanifold.com',
   compressHTML: true,
   integrations: [
-    sitemap({
-      filter: (page) => !page.includes('/investment-model'),
-    }),
+    sitemap(),
   ],
 });

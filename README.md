@@ -80,7 +80,7 @@ fractalmanifold_website/
 ├── public/
 │   ├── logo.png                          # Company logo
 │   ├── favicon.ico                       # Favicons
-│   ├── robots.txt                        # Crawler rules (excludes /investment-model)
+│   ├── robots.txt                        # Crawler rules
 │   ├── katex/                            # Self-hosted KaTeX CSS + fonts
 │   └── CNAME                             # Custom domain configuration
 ├── src/
@@ -101,8 +101,7 @@ fractalmanifold_website/
 │       ├── legal-notice.astro            # LSSI-CE legal notice (EN)
 │       ├── aviso-legal.astro             # LSSI-CE legal notice (ES)
 │       ├── privacy-policy.astro          # GDPR privacy policy (EN)
-│       ├── politica-privacidad.astro     # RGPD privacy policy (ES)
-│       └── investment-model.astro        # Internal prototype (noindex, hidden)
+│       └── politica-privacidad.astro     # RGPD privacy policy (ES)
 ├── astro.config.mjs                      # Astro + sitemap integration
 ├── tsconfig.json                         # TypeScript configuration
 ├── package.json                          # Dependencies and scripts
