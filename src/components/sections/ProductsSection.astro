@@ -1,0 +1,177 @@
+---
+---
+
+<section id="products" class="section products-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Products</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="lead">
+      Tools and research that come out of the lab.
+    </p>
+
+    <div class="products">
+      <a class="product" href="https://cwm.fractalmanifold.com" target="_blank" rel="noopener noreferrer">
+        <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <path d="M8 21h8M12 17v4" />
+        </svg>
+        <div class="product-content">
+          <h3>Claude Wall Monitor</h3>
+          <p>Live Claude Code, Codex &amp; Gemini usage on a 4&Prime; wall display — session windows, limits and alerts, all on your LAN, no cloud.</p>
+          <div class="tags">
+            <span class="tag">ESP32-S3</span>
+            <span class="tag">LVGL</span>
+            <span class="tag">LAN-only</span>
+          </div>
+          <span class="product-cta">Visit site →</span>
+        </div>
+      </a>
+
+      <a class="product" href="https://agentnetwork.fractalmanifold.com" target="_blank" rel="noopener noreferrer">
+        <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2.5" />
+          <circle cx="5" cy="5" r="2" />
+          <circle cx="19" cy="5" r="2" />
+          <circle cx="5" cy="19" r="2" />
+          <circle cx="19" cy="19" r="2" />
+          <path d="M10.3 10.3 6.4 6.4M13.7 10.3l3.9-3.9M10.3 13.7l-3.9 3.9M13.7 13.7l3.9 3.9" />
+        </svg>
+        <div class="product-content">
+          <h3>Xenagora</h3>
+          <p>A network for AI agents: register, discover peers and ask questions across fleets or inside your firewall — routed to the best answerer by expertise.</p>
+          <div class="tags">
+            <span class="tag">MCP</span>
+            <span class="tag">Kotlin</span>
+            <span class="tag">pgvector</span>
+          </div>
+          <span class="product-cta">Visit site →</span>
+        </div>
+      </a>
+
+      <a class="product" href="https://gdl.fractalmanifold.com" target="_blank" rel="noopener noreferrer">
+        <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+        <div class="product-content">
+          <h3>Geometric Deep Learning</h3>
+          <p>A math-first treatment of deep learning on graphs, manifolds and groups — message passing, symmetry and equivariance from the ground up.</p>
+          <div class="tags">
+            <span class="tag">Book</span>
+            <span class="tag">Mathematics</span>
+          </div>
+          <span class="product-cta">Coming soon →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .product {
+    display: block;
+    padding: 2rem;
+    background: var(--color-bg-secondary);
+    border-radius: 16px;
+    border: 1px solid rgba(243, 158, 11, 0.1);
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+  }
+
+  /* Purple accent on the middle card to use the palette without the gradient */
+  .product:nth-child(2) {
+    border-color: rgba(168, 85, 247, 0.15);
+  }
+
+  .product:nth-child(2) .bg-icon,
+  .product:nth-child(2) .product-cta {
+    color: var(--color-purple-light);
+  }
+
+  @media (hover: hover) {
+    .product:hover {
+      transform: translateY(-5px);
+      border-color: rgba(243, 158, 11, 0.35);
+      box-shadow: 0 10px 40px rgba(243, 158, 11, 0.08);
+    }
+
+    .product:nth-child(2):hover {
+      border-color: rgba(168, 85, 247, 0.35);
+      box-shadow: 0 10px 40px rgba(147, 51, 234, 0.08);
+    }
+
+    .product:hover .product-cta {
+      transform: translateX(4px);
+    }
+  }
+
+  .bg-icon {
+    position: absolute;
+    width: 8rem;
+    height: 8rem;
+    opacity: 0.18;
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    user-select: none;
+    color: var(--color-gold);
+  }
+
+  .product-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .product h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .product p {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    line-height: 1.4;
+  }
+
+  .product-cta {
+    display: inline-block;
+    color: var(--color-gold-light);
+    font-weight: 600;
+    transition: transform 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    .products {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
