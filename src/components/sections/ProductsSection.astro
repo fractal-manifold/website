@@ -35,10 +35,10 @@
           <span class="tag">LVGL</span>
           <span class="tag">LAN-only</span>
         </div>
-        <span class="product-cta">Visit site →</span>
+        <span class="product-cta">Visit site →<span class="sr-only"> (opens in a new tab)</span></span>
       </a>
 
-      <a class="product" href="https://agentnetwork.fractalmanifold.com" target="_blank" rel="noopener noreferrer">
+      <a class="product product--purple" href="https://agentnetwork.fractalmanifold.com" target="_blank" rel="noopener noreferrer">
         <span class="accent" aria-hidden="true"></span>
         <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="2.5" />
@@ -68,10 +68,10 @@
           <span class="tag">Kotlin</span>
           <span class="tag">pgvector</span>
         </div>
-        <span class="product-cta">Visit site →</span>
+        <span class="product-cta">Visit site →<span class="sr-only"> (opens in a new tab)</span></span>
       </a>
 
-      <a class="product" href="https://gdl.fractalmanifold.com" target="_blank" rel="noopener noreferrer">
+      <div class="product product--coming-soon" aria-label="Geometric Deep Learning — coming soon">
         <span class="accent" aria-hidden="true"></span>
         <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -93,7 +93,7 @@
           <span class="tag">Mathematics</span>
         </div>
         <span class="product-cta">Coming soon →</span>
-      </a>
+      </div>
     </div>
   </div>
 </section>
@@ -224,40 +224,50 @@
     transition: transform 0.3s ease;
   }
 
-  /* Purple accent on the middle card — palette variety without the gradient */
-  .product:nth-child(2) {
+  /* Purple accent — palette variety without the gradient. Tied to a modifier
+     class, not DOM order, so card reordering can't shift the accent. */
+  .product--purple {
     border-color: rgba(168, 85, 247, 0.18);
   }
 
-  .product:nth-child(2) .accent {
+  .product--purple .accent {
     background: linear-gradient(90deg, var(--color-purple), var(--color-purple-light));
   }
 
-  .product:nth-child(2) .bg-icon,
-  .product:nth-child(2) .eyebrow,
-  .product:nth-child(2) .product-cta {
+  .product--purple .bg-icon,
+  .product--purple .eyebrow,
+  .product--purple .product-cta {
     color: var(--color-purple-light);
   }
 
-  .product:nth-child(2) .product-badge {
+  .product--purple .product-badge {
     border-color: rgba(168, 85, 247, 0.3);
     background: rgba(168, 85, 247, 0.07);
     color: var(--color-purple-light);
   }
 
+  /* Inactive card: not a link, so no pointer affordance or hover lift. */
+  .product--coming-soon {
+    cursor: default;
+  }
+
+  .product--coming-soon .product-cta {
+    color: var(--color-text-muted);
+  }
+
   @media (hover: hover) {
-    .product:hover {
+    .product:not(.product--coming-soon):hover {
       transform: translateY(-6px);
       border-color: rgba(243, 158, 11, 0.4);
       box-shadow: 0 18px 50px rgba(245, 158, 11, 0.12);
     }
 
-    .product:nth-child(2):hover {
+    .product--purple:not(.product--coming-soon):hover {
       border-color: rgba(168, 85, 247, 0.42);
       box-shadow: 0 18px 50px rgba(147, 51, 234, 0.12);
     }
 
-    .product:hover .product-cta {
+    .product:not(.product--coming-soon):hover .product-cta {
       transform: translateX(4px);
     }
   }
