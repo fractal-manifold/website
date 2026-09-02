@@ -22,6 +22,12 @@ npm run preview    # Preview production build locally
 
 **Important**: the `dist/` folder is **NOT** committed to Git. GitHub Actions builds it automatically on push.
 
+### IDE run configurations
+
+Shared JetBrains run configurations live in `.run/` (versioned; `.idea/` is gitignored):
+`dev` (dev server + opens the browser), `dev (LAN)` (`--host`, to test from a phone),
+`build` and `preview`.
+
 ## Architecture
 
 ### Project structure
@@ -34,7 +40,7 @@ npm run preview    # Preview production build locally
   - `Layout.astro` — base layout: global styles, OG/Twitter, Schema.org Organization, canonical, hreflang, skip link, referrer policy
   - `LegalLayout.astro` — shared chrome for the 4 legal pages, builds hreflang from `alternateHref`
 - **`src/components/`** — Header, Footer
-- **`src/components/sections/`** — HeroSection, ResearchSection, FoundersSection, ContactSection
+- **`src/components/sections/`** — HeroSection, ResearchSection, ProductsSection, FoundersSection, ContactSection
 - **`public/`** — static assets (favicon, CNAME, robots.txt, `katex/` self-hosted fonts)
 - **`dist/`** — build output
 

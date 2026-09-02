@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="dev" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="dev (LAN)" type="js.build_tools.npm" nameIsGenerated="false">
     <package-json value="$PROJECT_DIR$/package.json" />
     <command value="run" />
     <scripts>
       <script value="dev" />
     </scripts>
-    <arguments value="-- --open" />
+    <arguments value="-- --host" />
     <node-interpreter value="project" />
     <envs />
     <method v="2" />
