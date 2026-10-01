@@ -60,6 +60,13 @@ npm start
 
 The site will be available at `http://localhost:4321`
 
+In IntelliJ IDEA or WebStorm, select **Web local** in the run configuration
+dropdown and click **Run**. This starts the development server on localhost
+and opens the site in your browser, with live updates when you edit files.
+The configuration is stored in `.idea/runConfigurations/Web_local.xml`.
+If it does not appear while the project is open, close and reopen the project
+folder in IntelliJ IDEA, then select **Run → Edit Configurations → Web local**.
+
 ### Building
 
 ```bash

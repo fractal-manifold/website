@@ -29,7 +29,9 @@ Thumbs.db
 
 # IDE files
 .vscode/
-.idea/
+!.idea/
+.idea/*
+!.idea/runConfigurations/
 *.sublime-project
 *.sublime-workspace
 *.iml
