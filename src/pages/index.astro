@@ -1,4 +1,9 @@
 ---
+import '@fontsource/unbounded/400.css';
+import '@fontsource/unbounded/600.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '../styles/bento.css';
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -10,12 +15,9 @@ import ContactSection from '../components/sections/ContactSection.astro';
 ---
 
 <Layout title="Fractal Manifold - Deep Learning Research & Investment">
-  <Fragment slot="head">
-    <link rel="stylesheet" href="/katex/katex.min.css" />
-  </Fragment>
   <Header />
 
-  <main id="main-content">
+  <main id="main-content" class="bento">
     <HeroSection />
     <ResearchSection />
     <ProductsSection />
@@ -25,23 +27,3 @@ import ContactSection from '../components/sections/ContactSection.astro';
 
   <Footer />
 </Layout>
-
-<style>
-  main {
-    padding-top: 80px;
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  @media (max-width: 768px) {
-    main {
-      padding-top: 70px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    main {
-      padding-top: 60px;
-    }
-  }
-</style>

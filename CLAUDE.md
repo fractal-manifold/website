@@ -41,13 +41,16 @@ Shared JetBrains run configurations live in `.run/` (versioned; `.idea/` is giti
   - `LegalLayout.astro` — shared chrome for the 4 legal pages, builds hreflang from `alternateHref`
 - **`src/components/`** — Header, Footer
 - **`src/components/sections/`** — HeroSection, ResearchSection, ProductsSection, FoundersSection, ContactSection
+- **`src/components/hero-visuals/`** — `engine.ts` (shared canvas engine) + `LogoGraph.astro` (animated hero visual)
+- **`src/styles/bento.css`** — global bento-grid / tile styles for the home
 - **`public/`** — static assets (favicon, CNAME, robots.txt, `katex/` self-hosted fonts)
 - **`dist/`** — build output
 
 ### Integrations / dependencies of note
 - **`@astrojs/sitemap` 3.2.1** (pinned — newer versions require Astro ≥5, we're on Astro 4).
-- **`katex`** — math rendered at build time (SSR) in the hero equations layer; CSS and fonts self-hosted in `public/katex/`.
-- **`@fontsource/bruno-ace`** — display font self-hosted (no Google Fonts remote fetch, RGPD-friendly).
+- **`katex`** + `public/katex/` — previously used for the hero equations layer; currently unused by the home.
+- **`@fontsource/bruno-ace`** — brand font (logo, legal pages), self-hosted (no Google Fonts remote fetch, RGPD-friendly).
+- **`@fontsource/unbounded`** + **`@fontsource/ibm-plex-sans`** — home display / body fonts, self-hosted, imported in `index.astro`.
 
 ### Design system
 
@@ -83,17 +86,22 @@ linear-gradient(135deg,
 - `translateY(-3px)` + box-shadow on hover.
 - Hover states wrapped in `@media (hover: hover)` to avoid flicker on touch devices.
 
-**Feature cards** (`ResearchSection`):
-- Each `.feature` card has a large SVG `.bg-icon` at ~18% opacity positioned right, with content in `.feature-content { position: relative; z-index: 1 }`.
-- `h3` is solid white, not gradient (gradient reserved for brand accents).
+**Home bento grid** (`index.astro` + `src/styles/bento.css`):
+- `<main class="bento">` is a 12-column grid (6 cols ≤1080px, 1 col ≤760px) on a dot-grid background (`body:has(.bento)`).
+- Each section component renders one or more `.tile` elements straight into the grid (Astro allows multiple root nodes). The section `id` sits on the section's first tile.
+- Base tile styles live in `src/styles/bento.css` as `:where(.bento) .tile` (specificity 0,1,0): enough to beat Layout's `*` reset, while each component's scoped styles (`.x[data-astro-cid]`, 0,2,0) still override spans, borders and backgrounds. Headings use `.bento h2/h3` to beat Layout's global heading font.
+- Fonts: Unbounded (`--display`) for headings/labels, IBM Plex Sans (`--body`) for text. Bruno Ace stays for the logo wordmark.
+- Tiles fade in staggered on load via `--i` (index × 70ms); disabled under `prefers-reduced-motion`.
 
-**Founder rows** (`FoundersSection`) break the grid symmetry:
-- Alternating `flex-direction: row-reverse` on `:nth-child(even)`, icons in rounded squares with gold/purple tint alternating.
-- Collapses to single-column on mobile.
+**Hero tile** (`HeroSection`): spans 8 columns × 2 rows; title in Bruno Ace, tagline in the system font. Behind the copy, `LogoGraph` draws on a `<canvas>`:
+- The logo's ribbon (a band wrapped around a sphere along a tennis-ball-seam curve) as a light wireframe carrying a graph; one lobe gold, the other purple. The pose only rocks gently so the two-hole logo shape stays legible.
+- Message-passing waves start at random nodes every ~1.3 s and spread breadth-first, gold → purple by hop.
+- `engine.ts` handles DPR sizing, the rAF loop (paused off-screen / hidden tab), pointer parallax, perspective projection and `prefers-reduced-motion` (single still frame). Glows use pre-rendered sprites with `'lighter'` compositing, not `shadowBlur`.
+- The ribbon is sized from the real title box so it never overlaps the text.
 
-**Hero equations layer**:
-- `HeroSection.astro` renders 22 geometric deep learning equations with `katex` at build time and positions them absolutely in the hero background with slow drift animations.
-- Equation density is reduced on viewports `<900px` (11 are hidden).
+**Product tiles** (`ProductsSection`): whole tile is an `<a>`; GDL tile is outlined gold, `.product--purple` (Token Monitor) outlined purple, each with a tinted glow so they stand out from neutral tiles.
+
+**Founder tiles** (`FoundersSection`): large faded `.bg-icon` (~18% opacity, top-right) as in the original feature cards, gold/purple alternating via `.founder--purple`.
 
 **Header**:
 - Fixed position with backdrop blur.
@@ -115,7 +123,7 @@ linear-gradient(135deg,
 - Skip-to-content link (`.skip-link`) rendered at the top of every page via `Layout.astro`; each page's `<main>` has `id="main-content"`.
 - `:focus-visible` global outline in gold.
 - `section[id]` has `scroll-margin-top: 100px` so the fixed header doesn't cover anchor targets.
-- `prefers-reduced-motion` disables orb / equation / 404-orb animations.
+- `prefers-reduced-motion` disables the bento tile entrance and the 404-orb animations, and freezes the hero canvas on a still frame.
 - Hover effects guarded with `@media (hover: hover)` to avoid flicker on touch.
 
 ### SEO

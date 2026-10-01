@@ -1,0 +1,721 @@
+---
+// Hero visual "logo-graph": the ribbon of the company logo (a band wrapped around a sphere along a
+// tennis-ball-seam curve) drawn as a light wireframe that carries a graph. Message-passing waves
+// start at random nodes and spread breadth-first along the band, gold → purple by hop count. One
+// lobe of the loop rests gold, the other purple. The pose only rocks gently so the logo stays legible.
+---
+
+<canvas class="hero-canvas" data-visual="logo-graph" aria-hidden="true"></canvas>
+
+<script>
+  import { startCanvas, project, brandMix, mix, rgba, type RGB, type View } from './engine';
+
+  const TAU = Math.PI * 2;
+
+  // Tennis-ball seam on the unit sphere: |c(t)| = 1 exactly when A + B = 1 and KZ = 2√(AB)
+  const A = 0.7;
+  const B = 0.3;
+  const KZ = 2 * Math.sqrt(A * B);
+  const HALF = 0.3; // half-width of the ribbon (sphere radius = 1)
+
+  const N_TARGET = 112;
+  const K = 4;
+  const SEG = 6; // samples per edge curve
+  const HOP_TIME = 0.3;
+  const MAX_HOPS = 5;
+  const WAVE_EVERY = 1.3;
+  const PREWARM = 6;
+  const DIST = 10; // camera distance (far, so the back loop is not shrunk much)
+
+  // Seeded RNG (mulberry32) so the graph and the animation are always the same
+  function rng(seed: number) {
+    let s = seed | 0;
+    return () => {
+      s = (s + 0x6d2b79f5) | 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // Base view direction (towards the viewer) in ribbon coordinates, see viewTransform
+  const VIEW_AZ = 0.05;
+  const VIEW_EL = -0.1;
+  const caz = Math.cos(VIEW_AZ);
+  const saz = Math.sin(VIEW_AZ);
+  const cel = Math.cos(VIEW_EL);
+  const sel = Math.sin(VIEW_EL);
+  const VX = -cel * saz;
+  const VY = -cel * caz;
+  const VZ = sel;
+
+  // Ribbon point at curve parameter t and across-band coordinate s ∈ [-1, 1].
+  // Writes the position (and optionally the band normal) into `out` at offset `o`.
+  function ribbon(t: number, s: number, out: Float32Array, o: number, normal?: Float32Array) {
+    const ct = Math.cos(t);
+    const st = Math.sin(t);
+    const c3 = Math.cos(3 * t);
+    const s3 = Math.sin(3 * t);
+    const cx = A * ct + B * c3;
+    const cy = A * st - B * s3;
+    const cz = KZ * Math.sin(2 * t);
+    // Tangent
+    let tx = -A * st - 3 * B * s3;
+    let ty = A * ct - 3 * B * c3;
+    let tz = 2 * KZ * Math.cos(2 * t);
+    const tl = Math.hypot(tx, ty, tz);
+    tx /= tl;
+    ty /= tl;
+    tz /= tl;
+    // Across-band direction: perpendicular to the curve and to the base view direction, so the band
+    // always shows its face — the outer passes read as wide rims around the two holes, like the logo
+    let ux = ty * VZ - tz * VY;
+    let uy = tz * VX - tx * VZ;
+    let uz = tx * VY - ty * VX;
+    const ul = Math.hypot(ux, uy, uz);
+    ux /= ul;
+    uy /= ul;
+    uz /= ul;
+    out[o] = cx + s * HALF * ux;
+    out[o + 1] = cy + s * HALF * uy;
+    out[o + 2] = cz + s * HALF * uz;
+    if (normal) {
+      // Band normal = T × U
+      normal[o] = ty * uz - tz * uy;
+      normal[o + 1] = tz * ux - tx * uz;
+      normal[o + 2] = tx * uy - ty * ux;
+    }
+  }
+
+  const speedAt = (t: number) =>
+    Math.hypot(-A * Math.sin(t) - 3 * B * Math.sin(3 * t), A * Math.cos(t) - 3 * B * Math.cos(3 * t), 2 * KZ * Math.cos(2 * t));
+
+  const angDiff = (a: number, b: number) => {
+    let d = (b - a) % TAU;
+    if (d > Math.PI) d -= TAU;
+    if (d < -Math.PI) d += TAU;
+    return d;
+  };
+
+  // ---------- Orientation ----------
+  // Ribbon coords → view space (X right, Y down, D towards the viewer). Looking along the y axis
+  // (slightly off, VIEW_AZ / VIEW_EL) the seam crosses the front of the sphere as an S between two
+  // holes; rolling it ~55° puts the holes top-right / bottom-left like the logo. The rocking stays
+  // small so the two holes and the central crossing are always readable.
+  const BASE_ROLL = -0.95;
+  const BASE_SPIN = 0;
+  const BASE_TILT = 0;
+  const ROCK_ROLL = 0.05;
+  const ROCK_SPIN = 0.13;
+  const ROCK_TILT = 0.08;
+
+  function viewTransform(v: ArrayLike<number>, roll: number, spin: number, tilt: number): number[] {
+    // Base: rotate by VIEW_AZ around z and VIEW_EL around x, then look along +y (X = x, Y = -z, D = -y)
+    const x1 = caz * v[0] - saz * v[1];
+    const y1 = saz * v[0] + caz * v[1];
+    let X = x1;
+    let Y = -(sel * y1 + cel * v[2]);
+    let D = -(cel * y1 - sel * v[2]);
+    // Roll in the screen plane
+    let x2 = Math.cos(roll) * X - Math.sin(roll) * Y;
+    let y2 = Math.sin(roll) * X + Math.cos(roll) * Y;
+    X = x2;
+    Y = y2;
+    // Spin around the vertical (screen Y) axis
+    x2 = Math.cos(spin) * X + Math.sin(spin) * D;
+    const d2 = -Math.sin(spin) * X + Math.cos(spin) * D;
+    X = x2;
+    D = d2;
+    // Tilt around the horizontal (screen X) axis
+    y2 = Math.cos(tilt) * Y - Math.sin(tilt) * D;
+    const d3 = Math.sin(tilt) * Y + Math.cos(tilt) * D;
+    return [X, y2, d3];
+  }
+
+  // Lobe tone: lower-left loop gold, upper-right loop purple (diagonal of the base pose)
+  const toneAt = (p: ArrayLike<number>) => {
+    const [X, Y] = viewTransform(p, BASE_ROLL, BASE_SPIN, BASE_TILT);
+    return Math.min(1, Math.max(0, 0.5 + (X - Y) * 0.85));
+  };
+
+  // ---------- Ribbon structure (the band is ruled, so two border points per sample suffice) ----------
+  const NT = 168;
+  const meshWorld = new Float32Array(NT * 2 * 3);
+  const meshNormal = new Float32Array(NT * 2 * 3);
+  const meshTone = new Float32Array(NT);
+  {
+    const c = new Float32Array(3);
+    for (let i = 0; i < NT; i++) {
+      const t = (i / NT) * TAU;
+      ribbon(t, -1, meshWorld, i * 6, meshNormal);
+      ribbon(t, 1, meshWorld, i * 6 + 3, meshNormal);
+      ribbon(t, 0, c, 0);
+      meshTone[i] = toneAt(c);
+    }
+  }
+  const RUNG_EVERY = 4;
+  const BORDER_CHUNK = 4;
+
+  let maxSpeed = 0;
+  let length = 0;
+  for (let i = 0; i < 720; i++) {
+    const sp = speedAt((i / 720) * TAU);
+    maxSpeed = Math.max(maxSpeed, sp);
+    length += (sp * TAU) / 720;
+  }
+
+  // ---------- Graph on the ribbon ----------
+  const graphRand = rng(424242);
+  const spacing = Math.sqrt((length * 2 * HALF) / N_TARGET);
+  const MIN_DIST = spacing * 0.78;
+  const nodeT: number[] = [];
+  const nodeS: number[] = [];
+  const pts: number[] = [];
+  const tmp = new Float32Array(3);
+  for (let tries = 0; tries < 30000 && nodeT.length < N_TARGET; tries++) {
+    const t = graphRand() * TAU;
+    const s = (graphRand() * 2 - 1) * 0.9;
+    // Area-uniform along the curve: faster stretches of the parametrisation cover more ribbon
+    if (graphRand() > speedAt(t) / maxSpeed) continue;
+    ribbon(t, s, tmp, 0);
+    let ok = true;
+    for (let i = 0; i < nodeT.length; i++) {
+      const dx = pts[i * 3] - tmp[0];
+      const dy = pts[i * 3 + 1] - tmp[1];
+      const dz = pts[i * 3 + 2] - tmp[2];
+      if (dx * dx + dy * dy + dz * dz < MIN_DIST * MIN_DIST) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      nodeT.push(t);
+      nodeS.push(s);
+      pts.push(tmp[0], tmp[1], tmp[2]);
+    }
+  }
+  const n = nodeT.length;
+  const nodeWorld = new Float32Array(pts);
+  const nodeTone = new Float32Array(n);
+  for (let i = 0; i < n; i++) nodeTone[i] = toneAt(nodeWorld.subarray(i * 3, i * 3 + 3));
+
+  // Neighbours measured along the band (param space), so edges never jump between ribbon passes
+  const paramDist2 = (a: number, b: number) => {
+    const sp = (speedAt(nodeT[a]) + speedAt(nodeT[b])) * 0.5;
+    const dt = angDiff(nodeT[a], nodeT[b]) * sp;
+    const ds = (nodeS[a] - nodeS[b]) * HALF;
+    return dt * dt + ds * ds;
+  };
+
+  const edgeA: number[] = [];
+  const edgeB: number[] = [];
+  const seen = new Set<number>();
+  const adj: { e: number; o: number }[][] = Array.from({ length: n }, () => []);
+  const maxEdge2 = (spacing * 2.1) ** 2;
+  for (let i = 0; i < n; i++) {
+    const near = Array.from({ length: n }, (_, j) => j)
+      .filter((j) => j !== i)
+      .sort((a, b) => paramDist2(i, a) - paramDist2(i, b))
+      .slice(0, K);
+    for (const j of near) {
+      if (paramDist2(i, j) > maxEdge2) continue;
+      const key = Math.min(i, j) * 1000 + Math.max(i, j);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const e = edgeA.length;
+      edgeA.push(i);
+      edgeB.push(j);
+      adj[i].push({ e, o: j });
+      adj[j].push({ e, o: i });
+    }
+  }
+  const m = edgeA.length;
+
+  // Edge curves hug the ribbon: interpolate (t, s) with wrap-around
+  const SP = SEG + 1;
+  const edgeWorld = new Float32Array(m * SP * 3);
+  for (let e = 0; e < m; e++) {
+    const a = edgeA[e];
+    const b = edgeB[e];
+    const dt = angDiff(nodeT[a], nodeT[b]);
+    for (let s = 0; s <= SEG; s++) {
+      const f = s / SEG;
+      ribbon(nodeT[a] + dt * f, nodeS[a] + (nodeS[b] - nodeS[a]) * f, edgeWorld, (e * SP + s) * 3);
+    }
+  }
+
+  // Wave sources: nodes on the visible side of the base pose, so every wave starts in view
+  const sources: number[] = [];
+  for (let i = 0; i < n; i++) {
+    if (viewTransform(nodeWorld.subarray(i * 3, i * 3 + 3), BASE_ROLL, BASE_SPIN, BASE_TILT)[2] > -0.15) sources.push(i);
+  }
+
+  // Outline samples used to fit the ribbon on screen: band borders over the extremes of the rocking
+  const fitPts: number[] = [];
+  {
+    const fitView = { w: 1, h: 1, cx: 0, cy: 0, scale: 1, yaw: 0, pitch: -Math.PI / 2, dist: DIST, wide: true };
+    for (const dr of [-1, 0, 1])
+      for (const ds of [-1, 0, 1])
+        for (const dtl of [-1, 0, 1]) {
+          for (let i = 0; i < NT * 2; i += 3) {
+            const [X, Y, D] = viewTransform(meshWorld.subarray(i * 3, i * 3 + 3), BASE_ROLL + dr * ROCK_ROLL, BASE_SPIN + ds * ROCK_SPIN, BASE_TILT + dtl * ROCK_TILT);
+            const p = project([X, -D, Y], fitView);
+            fitPts.push(p.x, p.y);
+          }
+        }
+  }
+  const fitN = fitPts.length / 2;
+  let uMin = Infinity, uMax = -Infinity, vMin = Infinity, vMax = -Infinity;
+  for (let i = 0; i < fitN; i++) {
+    uMin = Math.min(uMin, fitPts[i * 2]);
+    uMax = Math.max(uMax, fitPts[i * 2]);
+    vMin = Math.min(vMin, fitPts[i * 2 + 1]);
+    vMax = Math.max(vMax, fitPts[i * 2 + 1]);
+  }
+
+  // ---------- Glow sprites (pre-rendered once) ----------
+  function sprite(c: RGB, size = 64): HTMLCanvasElement {
+    const s = document.createElement('canvas');
+    s.width = s.height = size;
+    const g = s.getContext('2d')!;
+    const h = size / 2;
+    const grad = g.createRadialGradient(h, h, 0, h, h, h);
+    grad.addColorStop(0, rgba(c, 1));
+    grad.addColorStop(0.18, rgba(c, 0.55));
+    grad.addColorStop(0.45, rgba(c, 0.14));
+    grad.addColorStop(1, rgba(c, 0));
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    return s;
+  }
+
+  const TONES = 9;
+  const toneColor: RGB[] = Array.from({ length: TONES }, (_, i) => brandMix(0.08 + (i / (TONES - 1)) * 0.86));
+  const toneLight: RGB[] = toneColor.map((c) => mix(c, [255, 255, 255], 0.35));
+  let toneSprites: HTMLCanvasElement[] = [];
+  let coreSprite: HTMLCanvasElement;
+  const toneIdx = (tone: number) => Math.max(0, Math.min(TONES - 1, Math.round(tone * (TONES - 1))));
+  const hopTone = (hop: number) => hop / MAX_HOPS;
+
+  interface Message {
+    e: number;
+    forward: boolean;
+    to: number;
+    start: number;
+    hop: number;
+    wave: number;
+  }
+
+  // Waves overlap, so "visited" is tracked per wave in a small ring of slots
+  const SLOTS = 8;
+
+  function mount(canvas: HTMLCanvasElement) {
+    if (!toneSprites.length) {
+      toneSprites = toneColor.map((c) => sprite(c));
+      coreSprite = sprite([255, 250, 235], 32);
+    }
+
+    // Projection buffers
+    const MP = NT * 2;
+    const mx = new Float32Array(MP);
+    const my = new Float32Array(MP);
+    const md = new Float32Array(MP);
+    const mFacing = new Float32Array(MP);
+
+    const px = new Float32Array(n);
+    const py = new Float32Array(n);
+    const pk = new Float32Array(n);
+    const fog = new Float32Array(n);
+    const order = Array.from({ length: n }, (_, i) => i);
+
+    const ex = new Float32Array(m * SP);
+    const ey = new Float32Array(m * SP);
+    const ek = new Float32Array(m * SP);
+    const efog = new Float32Array(m * SP);
+
+    // Simulation state
+    const activeAt = new Float32Array(n).fill(-99);
+    const activeTone = new Float32Array(n);
+    const sourceAt = new Float32Array(n).fill(-99);
+    const visited = new Int32Array(SLOTS * n).fill(-1);
+    const edgeHeat = new Float32Array(m);
+    const edgeTone = new Float32Array(m);
+    const messages: Message[] = [];
+
+    const simRand = rng(77);
+    let wave = 0;
+    let nextWave = 0.2;
+    let simT = -1;
+
+    function activate(node: number, t: number, w: number, hop: number) {
+      activeAt[node] = t;
+      activeTone[node] = hopTone(hop);
+      if (hop >= MAX_HOPS) return;
+      const slot = (w % SLOTS) * n;
+      for (const { e, o } of adj[node]) {
+        if (visited[slot + o] === w) continue;
+        visited[slot + o] = w;
+        messages.push({ e, forward: edgeA[e] === node, to: o, start: t + 0.02 + simRand() * 0.07, hop: hop + 1, wave: w });
+      }
+    }
+
+    function step(t: number, dt: number) {
+      if (t - nextWave > 3) nextWave = t;
+      while (t >= nextWave) {
+        const src = sources[Math.floor(simRand() * sources.length)];
+        const w = ++wave;
+        visited[(w % SLOTS) * n + src] = w;
+        sourceAt[src] = nextWave;
+        activate(src, nextWave, w, 0);
+        nextWave += WAVE_EVERY * (0.8 + simRand() * 0.4);
+      }
+      const decay = Math.exp(-dt * 2.4);
+      for (let e = 0; e < m; e++) edgeHeat[e] *= decay;
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i];
+        const p = (t - msg.start) / HOP_TIME;
+        if (p >= 1) {
+          messages[i] = messages[messages.length - 1];
+          messages.pop();
+          activate(msg.to, msg.start + HOP_TIME, msg.wave, msg.hop);
+        } else if (p > 0 && edgeHeat[msg.e] < 1) {
+          edgeHeat[msg.e] = 1;
+          edgeTone[msg.e] = hopTone(msg.hop);
+        }
+      }
+    }
+
+    function advance(t: number) {
+      if (simT < 0) {
+        for (let s = 0; s < t; s += 1 / 30) step(s, 1 / 30);
+        simT = t;
+        return;
+      }
+      const dt = Math.max(0, t - simT);
+      simT = t;
+      step(t, dt);
+    }
+
+    // Ribbon coords → engine world coords, rebuilt each frame from the rocking angles
+    const W = new Float32Array(9);
+    function setMatrix(roll: number, spin: number, tilt: number) {
+      for (let c = 0; c < 3; c++) {
+        const basis = [0, 0, 0];
+        basis[c] = 1;
+        const [X, Y, D] = viewTransform(basis, roll, spin, tilt);
+        // engine.project with yaw 0, pitch -π/2 maps world (x, y, z) → screen (x, z), depth -y
+        W[c] = X;
+        W[3 + c] = -D;
+        W[6 + c] = Y;
+      }
+    }
+    const v3: [number, number, number] = [0, 0, 0];
+    function toWorld(src: Float32Array, o: number): [number, number, number] {
+      const x = src[o];
+      const y = src[o + 1];
+      const z = src[o + 2];
+      v3[0] = W[0] * x + W[1] * y + W[2] * z;
+      v3[1] = W[3] * x + W[4] * y + W[5] * z;
+      v3[2] = W[6] * x + W[7] * y + W[8] * z;
+      return v3;
+    }
+    function depthOf(x: number, y: number, z: number, view: View) {
+      const y1 = x * Math.sin(view.yaw) + y * Math.cos(view.yaw);
+      return y1 * Math.sin(view.pitch) + z * Math.cos(view.pitch);
+    }
+
+    const EXT = 1 + HALF;
+    const fogOf = (depth: number) => 0.32 + 0.68 * Math.min(1, Math.max(0, (depth / EXT + 1) / 2)) ** 1.2;
+    const ease = (x: number) => x * x * (3 - 2 * x);
+
+    // ---------- Layout: largest ribbon that stays clear of the title ----------
+    const fit = { key: '', cx: 0, cy: 0, scale: 1 };
+    const host = canvas.parentElement;
+    const copy = host?.querySelector<HTMLElement>('.hero-copy') ?? null;
+
+    function titleBox(w: number, h: number) {
+      if (copy) {
+        // Union of the rendered text lines (block boxes span the whole tile, the text does not)
+        const c = canvas.getBoundingClientRect();
+        const box = [Infinity, Infinity, -Infinity, -Infinity];
+        const walker = document.createTreeWalker(copy, NodeFilter.SHOW_TEXT);
+        const range = document.createRange();
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          range.selectNodeContents(node);
+          for (const r of range.getClientRects()) {
+            if (!r.width) continue;
+            box[0] = Math.min(box[0], r.left - c.left);
+            box[1] = Math.min(box[1], r.top - c.top);
+            box[2] = Math.max(box[2], r.right - c.left);
+            box[3] = Math.max(box[3], r.bottom - c.top);
+          }
+        }
+        if (box[2] > box[0]) return box;
+      }
+      return [0, 0, w * 0.52, h * 0.5];
+    }
+
+    function solveFit(w: number, h: number, wide: boolean) {
+      const CLEAR = 30;
+      const M = 14; // edge margin for node glow
+      const [bx0, by0, bx1, by1] = titleBox(w, h);
+      const left = wide ? w * 0.45 + 4 : M;
+      const top = wide ? M : Math.max(h * 0.45, by1 + CLEAR);
+      const clearOf = (cx: number, cy: number, s: number) => {
+        for (let i = 0; i < fitN; i++) {
+          const x = cx + fitPts[i * 2] * s;
+          const y = cy + fitPts[i * 2 + 1] * s;
+          if (x > bx0 - CLEAR && x < bx1 + CLEAR && y > by0 - CLEAR && y < by1 + CLEAR) return false;
+        }
+        return true;
+      };
+      // Feasible centres for a given scale, sampled on a grid
+      const centres = (s: number, g: number) => {
+        const cxLo = left - uMin * s;
+        const cxHi = w - M - uMax * s;
+        const cyLo = top - vMin * s;
+        const cyHi = h - M - vMax * s;
+        const out: number[] = [];
+        if (cxLo > cxHi || cyLo > cyHi) return out;
+        for (let a = 0; a <= g; a++)
+          for (let b = 0; b <= g; b++) {
+            const cx = cxLo + ((cxHi - cxLo) * a) / g;
+            const cy = cyLo + ((cyHi - cyLo) * b) / g;
+            if (clearOf(cx, cy, s)) out.push(cx, cy);
+          }
+        return out;
+      };
+      let lo = 10;
+      let hi = Math.min(w, h) * 0.6;
+      for (let it = 0; it < 14; it++) {
+        const mid = (lo + hi) / 2;
+        if (centres(mid, 12).length) lo = mid;
+        else hi = mid;
+      }
+      // Back off a touch (pointer parallax) and centre the ribbon in the room that is left
+      const s = lo * 0.95;
+      const c = centres(s, 16);
+      let mxc = 0;
+      let myc = 0;
+      for (let i = 0; i < c.length; i += 2) {
+        mxc += c[i];
+        myc += c[i + 1];
+      }
+      mxc /= Math.max(1, c.length / 2);
+      myc /= Math.max(1, c.length / 2);
+      let best = Infinity;
+      fit.cx = wide ? w * 0.72 : w * 0.5;
+      fit.cy = wide ? h * 0.55 : h * 0.72;
+      for (let i = 0; i < c.length; i += 2) {
+        const d = (c[i] - mxc) ** 2 + (c[i + 1] - myc) ** 2;
+        if (d < best) {
+          best = d;
+          fit.cx = c[i];
+          fit.cy = c[i + 1];
+        }
+      }
+      fit.scale = s;
+    }
+    document.fonts?.ready.then(() => (fit.key = ''));
+
+    startCanvas(canvas, {
+      yaw: 0,
+      pitch: -Math.PI / 2,
+      sway: 0,
+      stillTime: 2.4,
+      draw: ({ ctx, t, view, still }) => {
+        const T = t + PREWARM;
+        advance(T);
+
+        const { w, h } = view;
+        const key = `${w}x${h}`;
+        if (fit.key !== key) {
+          fit.key = key;
+          solveFit(w, h, view.wide);
+        }
+        view.dist = DIST;
+        view.cx = fit.cx;
+        view.cy = fit.cy;
+        view.scale = fit.scale;
+        // Damp the pointer parallax so the ribbon never drifts into the title
+        view.yaw *= 0.35;
+        view.pitch = -Math.PI / 2 + (view.pitch + Math.PI / 2) * 0.35;
+        const ps = Math.min(1.5, Math.max(0.75, view.scale / 170)); // pixel scale for strokes / glows
+
+        const tt = still ? 0 : T;
+        setMatrix(
+          BASE_ROLL + Math.sin(tt * 0.07) * ROCK_ROLL,
+          BASE_SPIN + Math.sin(tt * 0.11) * ROCK_SPIN,
+          BASE_TILT + Math.sin(tt * 0.083 + 1) * ROCK_TILT,
+        );
+
+        // ---- Project the ribbon borders ----
+        for (let i = 0; i < MP; i++) {
+          const p = project(toWorld(meshWorld, i * 3), view);
+          mx[i] = p.x;
+          my[i] = p.y;
+          md[i] = p.depth;
+          const nr = toWorld(meshNormal, i * 3);
+          mFacing[i] = depthOf(nr[0], nr[1], nr[2], view);
+        }
+
+        // ---- Very subtle fill so the band reads as a surface ----
+        for (let i = 0; i < NT; i++) {
+          const a = i * 2;
+          const b = ((i + 1) % NT) * 2;
+          const f = fogOf((md[a] + md[b + 1]) * 0.5);
+          const lit = Math.abs(mFacing[a]);
+          ctx.fillStyle = rgba(brandMix(meshTone[i]), (0.02 + 0.11 * lit) * f);
+          ctx.beginPath();
+          ctx.moveTo(mx[a], my[a]);
+          ctx.lineTo(mx[b], my[b]);
+          ctx.lineTo(mx[b + 1], my[b + 1]);
+          ctx.lineTo(mx[a + 1], my[a + 1]);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // ---- Structure lines: both band borders + cross-sections ----
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 1 * ps;
+        for (const side of [0, 1]) {
+          for (let i = 0; i < NT; i += BORDER_CHUNK) {
+            let fsum = 0;
+            ctx.beginPath();
+            for (let k = 0; k <= BORDER_CHUNK; k++) {
+              const a = ((i + k) % NT) * 2 + side;
+              fsum += fogOf(md[a]);
+              if (k === 0) ctx.moveTo(mx[a], my[a]);
+              else ctx.lineTo(mx[a], my[a]);
+            }
+            const f = fsum / (BORDER_CHUNK + 1);
+            ctx.strokeStyle = rgba(mix(brandMix(meshTone[(i + 2) % NT]), [255, 255, 255], 0.12 * f), 0.5 * f);
+            ctx.stroke();
+          }
+        }
+        ctx.lineWidth = 0.7 * ps;
+        for (let i = 0; i < NT; i += RUNG_EVERY) {
+          const a = i * 2;
+          const f = fogOf((md[a] + md[a + 1]) * 0.5);
+          ctx.strokeStyle = rgba(brandMix(meshTone[i]), 0.22 * f * f);
+          ctx.beginPath();
+          ctx.moveTo(mx[a], my[a]);
+          ctx.lineTo(mx[a + 1], my[a + 1]);
+          ctx.stroke();
+        }
+
+        // ---- Graph edges as curves on the band ----
+        for (let i = 0; i < n; i++) {
+          const p = project(toWorld(nodeWorld, i * 3), view);
+          px[i] = p.x;
+          py[i] = p.y;
+          pk[i] = p.k * ps;
+          fog[i] = fogOf(p.depth);
+        }
+        for (let e = 0; e < m; e++) {
+          const base = e * SP;
+          for (let s = 0; s < SP; s++) {
+            const p = project(toWorld(edgeWorld, (base + s) * 3), view);
+            ex[base + s] = p.x;
+            ey[base + s] = p.y;
+            ek[base + s] = p.k * ps;
+            efog[base + s] = fogOf(p.depth);
+          }
+          const a = edgeA[e];
+          const b = edgeB[e];
+          const f = (fog[a] + fog[b]) * 0.5;
+          const k = (pk[a] + pk[b]) * 0.5;
+          const heat = edgeHeat[e];
+          if (heat > 0.03) {
+            ctx.strokeStyle = rgba(toneLight[toneIdx(edgeTone[e])], (0.14 + heat * 0.62) * f);
+            ctx.lineWidth = (0.7 + heat * 1.1) * k;
+          } else {
+            ctx.strokeStyle = rgba(brandMix((nodeTone[a] + nodeTone[b]) * 0.5), 0.26 * f);
+            ctx.lineWidth = 0.75 * k;
+          }
+          ctx.beginPath();
+          ctx.moveTo(ex[base], ey[base]);
+          for (let s = 1; s < SP; s++) ctx.lineTo(ex[base + s], ey[base + s]);
+          ctx.stroke();
+        }
+
+        // ---- Nodes, far → near ----
+        order.sort((a, b) => pk[a] - pk[b]);
+        for (const i of order) {
+          const age = T - activeAt[i];
+          const act = age >= 0 && age < 4 ? Math.exp(-age * 1.7) : 0;
+          const k = pk[i];
+          const f = fog[i];
+          const ti = toneIdx(activeTone[i]);
+          if (act > 0.02) {
+            ctx.globalCompositeOperation = 'lighter';
+            const s = (16 + act * 28) * k;
+            ctx.globalAlpha = act * 0.85 * f;
+            ctx.drawImage(toneSprites[ti], px[i] - s / 2, py[i] - s / 2, s, s);
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+            if (age < 1) {
+              ctx.strokeStyle = rgba(toneLight[ti], (1 - age) * (1 - age) * 0.4 * f);
+              ctx.lineWidth = 0.8 * k;
+              ctx.beginPath();
+              ctx.arc(px[i], py[i], (3 + age * 12) * k, 0, TAU);
+              ctx.stroke();
+            }
+          }
+          // Wave origin: a wider double ring
+          const sAge = T - sourceAt[i];
+          if (sAge >= 0 && sAge < 1.4) {
+            const fade = (1 - sAge / 1.4) ** 2;
+            ctx.strokeStyle = rgba(toneLight[0], fade * 0.6 * f);
+            ctx.lineWidth = 1 * k;
+            ctx.beginPath();
+            ctx.arc(px[i], py[i], (5 + sAge * 26) * k, 0, TAU);
+            ctx.stroke();
+            ctx.strokeStyle = rgba(toneLight[0], fade * 0.3 * f);
+            ctx.beginPath();
+            ctx.arc(px[i], py[i], (3 + sAge * 14) * k, 0, TAU);
+            ctx.stroke();
+          }
+          const c = act > 0.02 ? toneLight[ti] : brandMix(nodeTone[i]);
+          ctx.fillStyle = rgba(c, 0.25 + 0.55 * f + act * 0.3);
+          ctx.beginPath();
+          ctx.arc(px[i], py[i], (1 + 1.1 * f + act * 1.4) * k, 0, TAU);
+          ctx.fill();
+        }
+
+        // ---- Messages riding the band ----
+        ctx.globalCompositeOperation = 'lighter';
+        for (const msg of messages) {
+          const raw = (T - msg.start) / HOP_TIME;
+          if (raw <= 0 || raw >= 1) continue;
+          const base = msg.e * SP;
+          const spr = toneSprites[toneIdx(hopTone(msg.hop))];
+          for (let s = 3; s >= 0; s--) {
+            let p = ease(Math.max(0, raw - s * 0.06));
+            if (!msg.forward) p = 1 - p;
+            const fpos = p * SEG;
+            const i0 = Math.min(SEG - 1, Math.floor(fpos));
+            const fr = fpos - i0;
+            const x = ex[base + i0] + (ex[base + i0 + 1] - ex[base + i0]) * fr;
+            const y = ey[base + i0] + (ey[base + i0 + 1] - ey[base + i0]) * fr;
+            const k = ek[base + i0];
+            const f = efog[base + i0];
+            const size = (14 - s * 2.5) * k;
+            ctx.globalAlpha = (1 - s * 0.24) * f;
+            ctx.drawImage(spr, x - size / 2, y - size / 2, size, size);
+            if (s === 0) {
+              const cs = 6 * k;
+              ctx.globalAlpha = 0.9 * f;
+              ctx.drawImage(coreSprite, x - cs / 2, y - cs / 2, cs, cs);
+            }
+          }
+        }
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+      },
+    });
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-visual="logo-graph"]').forEach(mount);
+</script>
