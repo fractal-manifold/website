@@ -28,7 +28,8 @@ Thumbs.db
 *.swo
 
 # IDE files
-.vscode/
+.vscode/*
+!.vscode/launch.json
 !.idea/
 .idea/*
 !.idea/runConfigurations/

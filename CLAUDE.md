@@ -28,6 +28,9 @@ Shared JetBrains run configurations live in `.run/` (versioned; `.idea/` is giti
 `dev` (dev server + opens the browser), `dev (LAN)` (`--host`, to test from a phone),
 `build` and `preview`.
 
+The same four exist for VS Code as launch configurations in `.vscode/launch.json` (Run and
+Debug / F5); it is the only file under `.vscode/` that is versioned.
+
 ## Architecture
 
 ### Project structure
