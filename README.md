@@ -94,6 +94,7 @@ fractalmanifold_website/
 │   ├── components/
 │   │   ├── Header.astro                  # Site header (lang-aware nav)
 │   │   ├── Footer.astro                  # Site footer (lang-aware links)
+│   │   ├── ProductTile.astro             # Clickable product tile (book, Token Monitor)
 │   │   └── sections/
 │   │       ├── HeroSection.astro         # Hero with animated equations
 │   │       ├── ResearchSection.astro     # Research grid
@@ -105,10 +106,10 @@ fractalmanifold_website/
 │   └── pages/
 │       ├── index.astro                   # Homepage
 │       ├── 404.astro                     # Custom error page
-│       ├── legal-notice.astro            # LSSI-CE legal notice (EN)
-│       ├── aviso-legal.astro             # LSSI-CE legal notice (ES)
-│       ├── privacy-policy.astro          # GDPR privacy policy (EN)
-│       └── politica-privacidad.astro     # RGPD privacy policy (ES)
+│       ├── legal.astro                   # LSSI-CE legal notice (EN)
+│       ├── aviso.astro                   # LSSI-CE legal notice (ES)
+│       ├── privacy.astro                 # GDPR privacy policy (EN)
+│       └── privacidad.astro              # RGPD privacy policy (ES)
 ├── astro.config.mjs                      # Astro + sitemap integration
 ├── tsconfig.json                         # TypeScript configuration
 ├── package.json                          # Dependencies and scripts

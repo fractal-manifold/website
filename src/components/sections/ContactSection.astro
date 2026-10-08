@@ -1,14 +1,16 @@
 ---
 ---
 
-<section id="contact" class="tile contact" style="--i:12">
-  <div class="contact-copy">
-    <span class="label">04 — Contact</span>
-    <h2>Contact</h2>
-    <p>Have an innovative startup or research idea? We'd love to hear about your project.</p>
-  </div>
-  <a class="email" href="mailto:contact@fractalmanifold.com">contact@fractalmanifold.com</a>
-</section>
+<div class="bento-group">
+  <section id="contact" class="tile contact" style="--i:14">
+    <div class="contact-copy">
+      <span class="label">04 — Contact</span>
+      <h2>Contact</h2>
+      <p>Have an innovative startup or research idea? We'd love to hear about your project.</p>
+    </div>
+    <a class="email" href="mailto:contact@fractalmanifold.com">contact@fractalmanifold.com</a>
+  </section>
+</div>
 
 <style>
   .contact {
@@ -17,7 +19,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 2rem;
-    padding: 2.5rem;
+    padding: clamp(1.75rem, 4vw, 3.5rem);
   }
 
   .contact-copy {
@@ -28,9 +30,12 @@
   }
 
   .email {
+    /* Keep the address on one line beside the copy; it only wraps once the tile stacks (≤760px) */
+    flex-shrink: 0;
+    max-width: 100%;
     font-family: var(--display);
     font-weight: 600;
-    font-size: clamp(1rem, 2.4vw, 1.9rem);
+    font-size: clamp(1rem, 1.8vw, 1.45rem);
     color: var(--color-gold-light);
     padding: 1.1rem 1.75rem;
     border: 1px solid rgba(245, 158, 11, 0.4);
@@ -57,7 +62,6 @@
     .contact {
       flex-direction: column;
       align-items: stretch;
-      padding: 1.75rem;
     }
 
     .email {

@@ -1,4 +1,6 @@
 ---
+import ProductTile from '../ProductTile.astro';
+
 const features = [
   {
     title: 'Advanced Deep Learning',
@@ -18,37 +20,50 @@ const features = [
 ];
 ---
 
-<section id="research" class="tile research-lead" style="--i:1">
-  <span class="label">01 — Research</span>
-  <h2>AI Research</h2>
-  <p>
-    Deep learning has achieved remarkable results, but current architectures are hitting fundamental limits.
-    We believe the path forward lies in mathematics—specifically in understanding the geometric structure of data
-    and the symmetries that govern learning.
-  </p>
-  <p>
-    Fractal Manifold is a research lab focused on advancing deep learning through rigorous mathematical foundations.
-    We work at the intersection of differential geometry, group theory, and neural network design to build models
-    that are not just bigger, but fundamentally better.
-  </p>
-</section>
+<div class="bento-group">
+  <section id="research" class="tile research-lead" style="--i:1">
+    <span class="label">01 — Research</span>
+    <h2>AI Research</h2>
+    <p>
+      Deep learning has achieved remarkable results, but current architectures are hitting fundamental limits.
+      We believe the path forward lies in mathematics—specifically in understanding the geometric structure of data
+      and the symmetries that govern learning.
+    </p>
+    <p>
+      Fractal Manifold is a research lab focused on advancing deep learning through rigorous mathematical foundations.
+      We work at the intersection of differential geometry, group theory, and neural network design to build models
+      that are not just bigger, but fundamentally better.
+    </p>
+  </section>
 
-{features.map((feature, idx) => (
-  <article class="tile area" style={`--i:${2 + idx}`}>
-    <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={feature.icon} />
-    <h3>{feature.title}</h3>
-    <p>{feature.text}</p>
-  </article>
-))}
+  <ProductTile
+    href="https://gdl.fractalmanifold.com"
+    label="Book"
+    title="Geometric Deep Learning"
+    tags={['Book', 'Mathematics']}
+    index={2}
+    span={5}
+  >
+    A math-first treatment of deep learning on graphs, manifolds and groups — message passing, symmetry and equivariance from the ground up.
+  </ProductTile>
+
+  {features.map((feature, idx) => (
+    <article class="tile area" style={`--i:${3 + idx}`}>
+      <svg class="bg-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={feature.icon} />
+      <h3>{feature.title}</h3>
+      <p>{feature.text}</p>
+    </article>
+  ))}
+</div>
 
 <style>
   .research-lead {
-    grid-row: span 2;
+    grid-column: span 7;
     justify-content: flex-end;
   }
 
   .area {
-    min-height: 150px;
+    min-height: 170px;
   }
 
   .research-lead p {
@@ -58,7 +73,6 @@ const features = [
   @media (max-width: 1080px) {
     .research-lead {
       grid-column: span 6;
-      grid-row: auto;
     }
 
     .area {

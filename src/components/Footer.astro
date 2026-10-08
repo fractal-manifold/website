@@ -1,13 +1,13 @@
 ---
 const path = Astro.url.pathname;
-const isSpanish = path.startsWith('/aviso-legal') || path.startsWith('/politica-privacidad');
+const isSpanish = path.startsWith('/aviso') || path.startsWith('/privacidad');
 
 const labels = isSpanish
   ? { legal: 'Aviso Legal', privacy: 'Política de Privacidad', rights: 'Todos los derechos reservados.' }
   : { legal: 'Legal Notice', privacy: 'Privacy Policy', rights: 'All rights reserved.' };
 
-const legalHref = isSpanish ? '/aviso-legal' : '/legal-notice';
-const privacyHref = isSpanish ? '/politica-privacidad' : '/privacy-policy';
+const legalHref = isSpanish ? '/aviso' : '/legal';
+const privacyHref = isSpanish ? '/privacidad' : '/privacy';
 ---
 
 <footer>

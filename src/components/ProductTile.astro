@@ -1,0 +1,182 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  title: string;
+  tags: string[];
+  accent?: 'gold' | 'purple';
+  /** Stagger position for the tile entrance animation */
+  index: number;
+  /** Columns spanned in the 12-column grid, and in the 6-column one (≤1080px) */
+  span: number;
+  spanMd?: number;
+}
+
+const { href, label, title, tags, accent = 'gold', index, span, spanMd = 6 } = Astro.props;
+---
+
+<a
+  class:list={['tile', 'product', { 'product--purple': accent === 'purple' }]}
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  style={`--i:${index};--span:${span};--span-md:${spanMd}`}
+>
+  <div class="product-top">
+    <span class="label">{label}</span>
+    <span class="product-arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 17L17 7" />
+        <path d="M8 7h9v9" />
+      </svg>
+    </span>
+  </div>
+  <h3>{title}</h3>
+  <p><slot /></p>
+  <div class="tags">
+    {tags.map((tag) => <span class="tag">{tag}</span>)}
+  </div>
+  <span class="product-cta">Visit site →<span class="sr-only"> (opens in a new tab)</span></span>
+</a>
+
+<style>
+  /* The only tiles that are links: full-colour outline, corner arrow and a button-shaped CTA
+     so they read as clickable next to the neutral tiles. */
+  .product {
+    grid-column: span var(--span, 6);
+    min-height: 280px;
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid var(--color-gold);
+    background:
+      radial-gradient(ellipse at 100% 0%, rgba(245, 158, 11, 0.24), transparent 62%),
+      rgba(14, 14, 16, 0.92);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25), 0 20px 60px -20px rgba(245, 158, 11, 0.5);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .product--purple {
+    border-color: var(--color-purple-light);
+    background:
+      radial-gradient(ellipse at 100% 0%, rgba(147, 51, 234, 0.3), transparent 62%),
+      rgba(14, 14, 16, 0.92);
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 20px 60px -20px rgba(147, 51, 234, 0.55);
+  }
+
+  .product-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .product--purple .label {
+    color: var(--color-purple-light);
+  }
+
+  .product-arrow {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    color: var(--color-bg);
+    transition: transform 0.3s ease;
+  }
+
+  .product--purple .product-arrow {
+    background: var(--color-purple);
+    color: var(--color-text);
+  }
+
+  .product-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tile.product h3 {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .product p {
+    flex: 1;
+    max-width: 60ch;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    color: var(--color-text-secondary);
+  }
+
+  .product-cta {
+    align-self: flex-start;
+    margin-top: 0.375rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--color-gold);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-gold-light);
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  .product--purple .product-cta {
+    border-color: var(--color-purple);
+    color: var(--color-purple-light);
+  }
+
+  @media (hover: hover) {
+    .product:hover {
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4), 0 24px 70px -18px rgba(245, 158, 11, 0.65);
+      transform: translateY(-3px);
+    }
+
+    .product--purple:hover {
+      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.4), 0 24px 70px -18px rgba(147, 51, 234, 0.7);
+    }
+
+    .product:hover .product-cta {
+      background: var(--color-gold);
+      color: var(--color-bg);
+    }
+
+    .product--purple:hover .product-cta {
+      background: var(--color-purple);
+      color: var(--color-text);
+    }
+
+    .product:hover .product-arrow {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  @media (max-width: 1080px) {
+    .product {
+      grid-column: span var(--span-md, 6);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .product {
+      min-height: 0;
+    }
+
+    .product-cta {
+      align-self: stretch;
+      text-align: center;
+    }
+  }
+</style>

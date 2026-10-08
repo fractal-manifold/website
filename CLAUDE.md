@@ -29,21 +29,23 @@ Shared JetBrains run configurations live in `.run/` (versioned; `.idea/` is giti
 `build` and `preview`.
 
 The same four exist for VS Code as launch configurations in `.vscode/launch.json` (Run and
-Debug / F5); it is the only file under `.vscode/` that is versioned.
+Debug / F5); it is the only file under `.vscode/` that is versioned. There `dev` and `preview`
+open the site in VS Code's integrated browser (`serverReadyAction`) instead of the system one.
 
 ## Architecture
 
 ### Project structure
 - **`src/pages/`** — route pages
   - `index.astro` — homepage (composition only)
-  - `legal-notice.astro` / `aviso-legal.astro` — LSSI-CE legal notice (EN/ES)
-  - `privacy-policy.astro` / `politica-privacidad.astro` — GDPR/LOPDGDD privacy policy (EN/ES)
+  - `legal.astro` / `aviso.astro` — LSSI-CE legal notice (EN/ES)
+  - `privacy.astro` / `privacidad.astro` — GDPR/LOPDGDD privacy policy (EN/ES)
+  - The former two-word URLs (`/legal-notice`, `/privacy-policy`, `/aviso-legal`, `/politica-privacidad`) are kept alive by `redirects` in `astro.config.mjs`
   - `404.astro` — custom error page
 - **`src/layouts/`**
   - `Layout.astro` — base layout: global styles, OG/Twitter, Schema.org Organization, canonical, hreflang, skip link, referrer policy
   - `LegalLayout.astro` — shared chrome for the 4 legal pages, builds hreflang from `alternateHref`
-- **`src/components/`** — Header, Footer
-- **`src/components/sections/`** — HeroSection, ResearchSection, ProductsSection, FoundersSection, ContactSection
+- **`src/components/`** — Header, Footer, ProductTile (clickable product tile shared by Research and Products)
+- **`src/components/sections/`** — HeroSection, ResearchSection, FoundersSection (startup consulting), ProductsSection, ContactSection — rendered in that order
 - **`src/components/hero-visuals/`** — `engine.ts` (shared canvas engine) + `LogoGraph.astro` (animated hero visual)
 - **`src/styles/bento.css`** — global bento-grid / tile styles for the home
 - **`public/`** — static assets (favicon, CNAME, robots.txt, `katex/` self-hosted fonts)
@@ -90,21 +92,23 @@ linear-gradient(135deg,
 - Hover states wrapped in `@media (hover: hover)` to avoid flicker on touch devices.
 
 **Home bento grid** (`index.astro` + `src/styles/bento.css`):
-- `<main class="bento">` is a 12-column grid (6 cols ≤1080px, 1 col ≤760px) on a dot-grid background (`body:has(.bento)`).
-- Each section component renders one or more `.tile` elements straight into the grid (Astro allows multiple root nodes). The section `id` sits on the section's first tile.
+- `<main class="bento">` is a flex column on a dot-grid background (`body:has(.bento)`); each section component renders one `.bento-group`, a 12-column grid (6 cols ≤1080px, 1 col ≤760px) holding its `.tile`s. The section `id` sits on the section's first tile.
+- Spacing is three variables on `.bento`: `--tile-gap` (24px between tiles), `--tile-pad` (2.5rem tile padding) and `--section-gap` (64px between groups); they step down at 1080px and 760px.
 - Base tile styles live in `src/styles/bento.css` as `:where(.bento) .tile` (specificity 0,1,0): enough to beat Layout's `*` reset, while each component's scoped styles (`.x[data-astro-cid]`, 0,2,0) still override spans, borders and backgrounds. Headings use `.bento h2/h3` to beat Layout's global heading font.
 - Fonts: Unbounded (`--display`) for headings/labels, IBM Plex Sans (`--body`) for text. Bruno Ace stays for the logo wordmark.
 - Tiles fade in staggered on load via `--i` (index × 70ms); disabled under `prefers-reduced-motion`.
 
-**Hero tile** (`HeroSection`): spans 8 columns × 2 rows; title in Bruno Ace, tagline in the system font. Behind the copy, `LogoGraph` draws on a `<canvas>`:
+**Hero tile** (`HeroSection`): its own full-width group; title in Bruno Ace, tagline in the system font. Behind the copy, `LogoGraph` draws on a `<canvas>`:
 - The logo's ribbon (a band wrapped around a sphere along a tennis-ball-seam curve) as a light wireframe carrying a graph; one lobe gold, the other purple. The pose only rocks gently so the two-hole logo shape stays legible.
 - Message-passing waves start at random nodes every ~1.3 s and spread breadth-first, gold → purple by hop.
 - `engine.ts` handles DPR sizing, the rAF loop (paused off-screen / hidden tab), pointer parallax, perspective projection and `prefers-reduced-motion` (single still frame). Glows use pre-rendered sprites with `'lighter'` compositing, not `shadowBlur`.
 - The ribbon is sized from the real title box so it never overlaps the text.
 
-**Product tiles** (`ProductsSection`): whole tile is an `<a>`; GDL tile is outlined gold, `.product--purple` (Token Monitor) outlined purple, each with a tinted glow so they stand out from neutral tiles.
+**Product tiles** (`ProductTile`): the only tiles that are links. Whole tile is an `<a>` with a 2px full-colour outline, a solid corner arrow and a button-shaped "Visit site" CTA that fills on hover; gold by default, `accent="purple"` for purple. Column spans come in as `span` / `spanMd` props. The GDL book sits in `ResearchSection` next to the research text; Token Monitor sits in `ProductsSection`.
 
-**Founder tiles** (`FoundersSection`): large faded `.bg-icon` (~18% opacity, top-right) as in the original feature cards, gold/purple alternating via `.founder--purple`.
+**Coming-soon tiles** (`ProductsSection`, `.soon`): dashed neutral outline, "Coming soon" badge, no link — data in the `upcoming` array (Detailed Art, Xenagora).
+
+**Startup tiles** (`FoundersSection`): section sold as AI consulting for startups (anchor `#startups`). Its group overrides the columns to `5fr 3fr 3fr 3fr` (wide intro + three tiles). Large faded `.bg-icon` (~18% opacity, bottom-right), gold/purple alternating via `.founder--purple`.
 
 **Header**:
 - Fixed position with backdrop blur.

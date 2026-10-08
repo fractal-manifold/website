@@ -2,7 +2,7 @@
 const path = Astro.url.pathname;
 const isHome = path === '/' || path === '';
 const prefix = isHome ? '' : '/';
-const isSpanish = path.startsWith('/aviso-legal') || path.startsWith('/politica-privacidad');
+const isSpanish = path.startsWith('/aviso') || path.startsWith('/privacidad');
 const navLabel = isSpanish ? 'Principal' : 'Main';
 ---
 
@@ -15,8 +15,8 @@ const navLabel = isSpanish ? 'Principal' : 'Main';
       </a>
       <div class="nav-links">
         <a href={`${prefix}#research`}>Research</a>
+        <a href={`${prefix}#startups`}>Startups</a>
         <a href={`${prefix}#products`}>Products</a>
-        <a href={`${prefix}#startups`}>Founders</a>
         <a href={`${prefix}#contact`}>Contact</a>
       </div>
     </nav>
