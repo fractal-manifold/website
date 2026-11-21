@@ -4,11 +4,6 @@ import ProductTile from '../ProductTile.astro';
 // Announced but not launched: no link, so they stay visually quieter than the product tiles.
 const upcoming: { title: string; label?: string; text?: string }[] = [
   {
-    title: 'Detailed Art',
-    label: 'AI Imaging',
-    text: 'Every image, more possibilities. Imagine, transform and create with AI — a space to take your images a little further.',
-  },
-  {
     title: 'Xenagora',
     label: 'Agent Network',
     text: 'A network for AI agents: register, discover peers and ask questions across fleets or inside your firewall — routed to the best answerer by expertise.',
@@ -24,15 +19,16 @@ const upcoming: { title: string; label?: string; text?: string }[] = [
   </section>
 
   <ProductTile
-    href="https://tokenmonitor.dev"
-    label="Hardware · LAN"
-    title="Token Monitor"
-    tags={['ESP32-S3', 'LVGL', 'LAN-only']}
+    href="https://detailed.art"
+    label="AI Imaging"
+    title="Detailed.art"
+    tags={['Web app', 'AI editing', 'Client galleries']}
     accent="purple"
+    status="alpha"
     index={11}
     span={7}
   >
-    Live Claude Code, Codex &amp; Gemini usage on a 4&Prime; wall display — session windows, limits and alerts, all on your LAN, no cloud.
+    Every image, more possibilities. Imagine, transform and create with AI — a space to take your images a little further.
   </ProductTile>
 
   {upcoming.map((item, idx) => (
@@ -45,6 +41,19 @@ const upcoming: { title: string; label?: string; text?: string }[] = [
       {item.text && <p>{item.text}</p>}
     </article>
   ))}
+
+  <ProductTile
+    href="https://tokenmonitor.dev"
+    label="Hardware · LAN"
+    title="Token Monitor"
+    tags={['ESP32-S3', 'LVGL', 'LAN-only']}
+    status="deprecated"
+    index={12 + upcoming.length}
+    span={6}
+    spanMd={3}
+  >
+    Live Claude Code, Codex &amp; Gemini usage on a 4&Prime; wall display — session windows, limits and alerts, all on your LAN, no cloud.
+  </ProductTile>
 </div>
 
 <style>

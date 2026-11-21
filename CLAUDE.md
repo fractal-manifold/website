@@ -104,9 +104,9 @@ linear-gradient(135deg,
 - `engine.ts` handles DPR sizing, the rAF loop (paused off-screen / hidden tab), pointer parallax, perspective projection and `prefers-reduced-motion` (single still frame). Glows use pre-rendered sprites with `'lighter'` compositing, not `shadowBlur`.
 - The ribbon is sized from the real title box so it never overlaps the text.
 
-**Product tiles** (`ProductTile`): the only tiles that are links. Whole tile is an `<a>` with a 2px full-colour outline, a solid corner arrow and a button-shaped "Visit site" CTA that fills on hover; gold by default, `accent="purple"` for purple. Column spans come in as `span` / `spanMd` props. The GDL book sits in `ResearchSection` next to the research text; Token Monitor sits in `ProductsSection`.
+**Product tiles** (`ProductTile`): the only tiles that are links. Whole tile is an `<a>` with a 2px full-colour outline, a solid corner arrow and a button-shaped "Visit site" CTA that fills on hover; gold by default, `accent="purple"` for purple. Column spans come in as `span` / `spanMd` props. Optional `status` prop adds a badge: `'alpha'` (live but early) or `'deprecated'` (neutral outline, no glow, link kept). The GDL book sits in `ResearchSection` next to the research text; `ProductsSection` lists Detailed.art (alpha, first), Xenagora (coming soon) and Token Monitor (deprecated, last).
 
-**Coming-soon tiles** (`ProductsSection`, `.soon`): dashed neutral outline, "Coming soon" badge, no link — data in the `upcoming` array (Detailed Art, Xenagora).
+**Coming-soon tiles** (`ProductsSection`, `.soon`): dashed neutral outline, "Coming soon" badge, no link — data in the `upcoming` array (Xenagora).
 
 **Startup tiles** (`FoundersSection`): section sold as AI consulting for startups (anchor `#startups`). Its group overrides the columns to `5fr 3fr 3fr 3fr` (wide intro + three tiles). Large faded `.bg-icon` (~18% opacity, bottom-right), gold/purple alternating via `.founder--purple`.
 

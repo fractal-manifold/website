@@ -10,13 +10,16 @@ interface Props {
   /** Columns spanned in the 12-column grid, and in the 6-column one (≤1080px) */
   span: number;
   spanMd?: number;
+  /** Lifecycle badge: 'alpha' is live but early; 'deprecated' drops the tile to a neutral outline */
+  status?: 'alpha' | 'deprecated';
 }
 
-const { href, label, title, tags, accent = 'gold', index, span, spanMd = 6 } = Astro.props;
+const { href, label, title, tags, accent = 'gold', index, span, spanMd = 6, status } = Astro.props;
+const statusLabel = { alpha: 'Alpha', deprecated: 'Deprecated' } as const;
 ---
 
 <a
-  class:list={['tile', 'product', { 'product--purple': accent === 'purple' }]}
+  class:list={['tile', 'product', { 'product--purple': accent === 'purple', 'product--deprecated': status === 'deprecated' }]}
   href={href}
   target="_blank"
   rel="noopener noreferrer"
@@ -24,6 +27,7 @@ const { href, label, title, tags, accent = 'gold', index, span, spanMd = 6 } = A
 >
   <div class="product-top">
     <span class="label">{label}</span>
+    {status && <span class:list={['status-badge', `status-badge--${status}`]}>{statusLabel[status]}</span>}
     <span class="product-arrow" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
         <path d="M7 17L17 7" />
@@ -72,6 +76,44 @@ const { href, label, title, tags, accent = 'gold', index, span, spanMd = 6 } = A
 
   .product--purple .label {
     color: var(--color-purple-light);
+  }
+
+  .status-badge {
+    margin-left: auto;
+    font-family: var(--display);
+    font-size: 0.625rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    color: var(--color-gold-light);
+  }
+
+  .product--purple .status-badge {
+    color: var(--color-purple-light);
+  }
+
+  /* Still reachable, but no longer promoted: neutral outline, no glow, muted accents. */
+  .tile.product--deprecated {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(14, 14, 16, 0.72);
+    box-shadow: none;
+  }
+
+  .product--deprecated .label,
+  .product--deprecated .status-badge,
+  .product--deprecated .product-cta {
+    color: var(--color-text-muted);
+  }
+
+  .product--deprecated .product-arrow {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--color-text-secondary);
+  }
+
+  .product--deprecated .product-cta {
+    border-color: rgba(255, 255, 255, 0.22);
   }
 
   .product-arrow {
@@ -160,6 +202,15 @@ const { href, label, title, tags, accent = 'gold', index, span, spanMd = 6 } = A
 
     .product:hover .product-arrow {
       transform: translate(2px, -2px);
+    }
+
+    .product--deprecated:hover {
+      box-shadow: 0 16px 40px -20px rgba(255, 255, 255, 0.25);
+    }
+
+    .product--deprecated:hover .product-cta {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--color-text);
     }
   }
 
